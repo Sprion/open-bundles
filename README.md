@@ -50,7 +50,7 @@ your theme. You only:
 
 1. give your store's myshopify.com domain,
 2. sign in to Shopify in your browser when it opens,
-3. click **Install app** once in the Shopify Dev Dashboard,
+3. on a live store, click **Install app** once in the Shopify Dev Dashboard (dev stores need nothing),
 4. look at the preview and say when to go live.
 
 You never paste a key: the app keys go from the Shopify CLI straight to a settings file outside the project folder

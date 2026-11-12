@@ -3,8 +3,8 @@
 This file is written for an AI coding assistant (Claude Code or similar) that can run commands on the user's computer.
 A person can follow it too: every step is a command or one click.
 
-The user is asked for three things only: **their store domain**, **signing in to Shopify in the browser** (twice at
-most), and **one Install click**. Everything else is your job.
+The user is asked for two things only: **their store domain** and **signing in to Shopify in the browser** once (the
+Shopify CLI asks). A live store also needs **one Install click**; a dev store none. Everything else is your job.
 
 ## Rules
 
@@ -34,33 +34,40 @@ cd app && npm install && cd ..
 ## 3. Create the Shopify app
 
 ```bash
-shopify app config link --path app
+shopify organization list --json
 ```
 
-Interactive. Tell the user before running it: *"A browser window opens: sign in with the Shopify account that owns
-your store, pick its organization, and answer Yes to create a new app (name: Open Bundles)."*
+The first Shopify CLI command opens the browser once for the user to sign in (tell them before you run it). Pick the
+organization that owns `STORE` (`shopify store list --organization-id ORG_ID --json` lists its stores). Then create the
+app in a temporary folder outside the repository, only to get its client ID, without any prompt:
 
-Then check `app/shopify.app.toml`: `client_id` is filled in, and it still has
-
-```toml
-[access_scopes]
-scopes = "read_products,read_orders,read_files,write_discounts"
+```bash
+shopify app init --name "Open Bundles" --organization-id ORG_ID --template none --path TEMP_DIR --no-input
 ```
 
-If the link rewrote the file without that block, add it back.
+Copy the `client_id` line of `TEMP_DIR/open-bundles/shopify.app.toml` into `app/shopify.app.toml` (replace
+`client_id = ""`), then delete `TEMP_DIR`. Keep the rest of `app/shopify.app.toml` as it is: it holds the scopes.
 
 ## 4. Deploy the discount function
 
 ```bash
-shopify app deploy --path app --force
+shopify app deploy --path app --allow-updates --no-input
 ```
 
-This uploads the function and releases the app version.
+This builds the function, uploads it and releases the app version.
 
 ## 5. Install the app on the store
 
-Ask the user: *"Open dev.shopify.com, go to Apps > Open Bundles, click **Install app**, choose your store and confirm.
-Tell me when it is done."* The store must belong to the organization picked in step 3.
+**Dev store** (`shopify store list` shows `"type": "dev"`): install it without the user.
+
+```bash
+shopify app dev --path app --store STORE --no-input
+```
+
+Wait for "Access scopes auto-granted", then stop the command (it keeps running to watch for changes).
+
+**Live store**: one click from the user. *"Open dev.shopify.com, go to Apps > Open Bundles, click Install app,
+choose your store and confirm."* The store must belong to the organization picked in step 3.
 
 ## 6. Connect the editor
 
@@ -75,8 +82,9 @@ redeploy, and ask the user to accept the app update in the store admin.
 
 ```bash
 shopify theme list --store STORE --role live --json
-shopify theme duplicate --store STORE --theme LIVE_ID --name "Bundles test" --json
-shopify theme pull --store STORE --theme COPY_ID --path .theme-work
+shopify theme duplicate --store STORE --theme LIVE_ID --name "Bundles test" --json --force --no-input
+mkdir .theme-work
+shopify theme pull --store STORE --theme COPY_ID --path .theme-work --force --no-input
 ```
 
 `.theme-work/` is ignored by git. Then:
@@ -108,7 +116,7 @@ shopify theme pull --store STORE --theme COPY_ID --path .theme-work
 5. Push only what changed, to the copy:
 
    ```bash
-   shopify theme push --store STORE --theme COPY_ID --path .theme-work --nodelete --only snippets/ob-* --only assets/ob-bundle.js --only sections/MAIN_SECTION.liquid
+   shopify theme push --store STORE --theme COPY_ID --path .theme-work --nodelete --only snippets/ob-* --only assets/ob-bundle.js --only sections/MAIN_SECTION.liquid --no-input
    python scripts/connect.py --store STORE --preview-theme COPY_ID
    ```
 
@@ -133,7 +141,11 @@ sample pictures must have them replaced or removed before it saves.
 ## 9. Check, then go live
 
 Open `https://STORE/products/HANDLE?preview_theme_id=COPY_ID`: the bundle shows, Add to cart adds the right items,
-and the cart total has the bundle discount. Show the user, and fix what is off.
+and the cart total has the bundle discount. Show the user, and fix what is off. Dev stores are password protected:
+the storefront password is in the admin (Online Store > Preferences), and only the user can give it.
+
+The editor preview (`POST /api/bundles/render/<key>` with the product handle) draws the block with the real product
+without opening the storefront, a quick check before the full one.
 
 Going live is the user's call: they publish the copy in Online Store > Themes, or ask you to run
 `shopify theme publish --store STORE --theme COPY_ID`.
