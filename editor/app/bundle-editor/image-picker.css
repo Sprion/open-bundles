@@ -1,0 +1,35 @@
+/* "Add an image" pop-up: library + size + radius on the left, live bar preview on the right */
+.imp { --ln: #E3E5E8; --fld: #D5D8DD; --pill: #EDEEF0; position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(16, 24, 40, .35); }
+.imp__box { display: flex; flex-direction: column; gap: 18px; width: min(1080px, 100%); max-height: calc(100vh - 48px); overflow: auto; padding: 22px 24px; border-radius: 18px; background: #fff; box-shadow: 0 24px 60px rgba(16, 24, 40, .2); }
+.imp__head { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+.imp__head b { font-weight: 600; }
+.imp__x { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--ln); border-radius: 50%; background: #fff; cursor: pointer; }
+.imp__cols { display: grid; grid-template-columns: minmax(0, 360px) minmax(0, 1fr); gap: 28px; align-items: start; }
+.imp__side { display: flex; flex-direction: column; gap: 14px; }
+.imp__current { position: relative; display: grid; place-items: center; width: 100%; min-height: 92px; padding: 10px; border: 1px solid var(--fld); border-radius: 10px; background: #fff; cursor: pointer; }
+.imp__current:hover { border-color: #8D96A7; }
+.imp__empty { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 13px; color: var(--text); }
+.imp__empty small { color: var(--text-3); }
+.imp__lib[hidden] { display: none; }
+.imp__src { margin: 0; font-size: 12px; color: var(--text-3); }
+.imp__current img { object-fit: cover; }
+.imp__current p { margin: 0; font-size: 13px; color: var(--text-3); }
+.imp__del { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 50%; background: var(--pill); cursor: pointer; }
+.imp__lib { display: flex; flex-direction: column; gap: 8px; padding-bottom: 14px; border-bottom: 1px solid #F0F1F3; }
+.imp__lib input { height: 38px; padding: 0 12px; border: 1px solid var(--fld); border-radius: 10px; font: 400 14px var(--font); }
+.imp__grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; max-height: 196px; overflow: auto; }
+.imp__pick { aspect-ratio: 1; padding: 0; overflow: hidden; border: 1px solid var(--ln); border-radius: 8px; background: #F4F5F7; cursor: pointer; }
+.imp__pick img { width: 100%; height: 100%; object-fit: cover; }
+.imp__pick.is-on { border: 2px solid #191c1f; }
+.imp__pv > span { display: block; margin-bottom: 12px; font-size: 14px; font-weight: 500; }
+.imp__pv .pv { max-width: 480px; margin: 0; padding: 0; }
+.imp__foot { display: flex; justify-content: flex-end; gap: 8px; }
+.imp .be__range { display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 500; }
+.imp .be__rrow { display: flex; align-items: center; gap: 12px; }
+.imp .be__rrow input[type="range"] { flex: 1; accent-color: #191c1f; }
+.imp .be__num { position: relative; flex: 0 0 84px; }
+.imp .be__num input { width: 100%; height: 40px; padding: 0 30px 0 12px; border: 1px solid var(--fld); border-radius: 10px; font: 400 14px var(--font); }
+.imp .be__num em { position: absolute; top: 11px; right: 12px; font: normal 13px var(--font); color: var(--text-3); }
+@media (max-width: 800px) { .imp__cols { grid-template-columns: 1fr; } }
+.imp > .imp__box { height: auto; align-self: center; max-height: calc(100vh - 48px); }
+.imp__box > * { flex-shrink: 0; }

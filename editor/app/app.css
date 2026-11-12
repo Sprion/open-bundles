@@ -1,0 +1,43 @@
+/* Editor stylesheet entry: tokens, base, shared list styles, then each part's own CSS. */
+@import url("tokens.css");
+@import url("base.css");
+@import url("shared.css");
+@import url("test-rows/test-rows.css");
+@import url("bundle-list/bundle-list.css");
+@import url("bundle-editor/editor.css");
+@import url("bundle-editor/style.css");
+@import url("bundle-editor/bars.css");
+@import url("bundle-editor/badges.css");
+@import url("bundle-editor/preview.css");
+@import url("bundle-editor/image-picker.css");
+@import url("bundle-editor/gifts.css");
+
+.top { position: sticky; top: 0; z-index: 20; background: rgba(255, 255, 255, .92); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; }
+.top h1 { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+.top small { margin-left: 10px; padding: 3px 8px; border-radius: 999px; background: var(--panel); color: var(--text-2); font-size: 12px; font-weight: 600; }
+main { padding: 24px 0 64px; }
+
+.top__actions { display: flex; gap: 8px; }
+
+/* Connect to store window */
+.cx { width: min(620px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: 16px; box-shadow: 0 24px 60px rgba(0, 0, 0, .25); color: var(--text); }
+.cx::backdrop { background: rgba(20, 20, 20, .45); }
+.cx__box { display: grid; gap: 14px; padding: 22px 24px 20px; }
+.cx__head { display: flex; align-items: center; justify-content: space-between; }
+.cx__head h2 { margin: 0; font-size: 19px; }
+.cx__lead { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.5; }
+.cx__lead code { font-size: 12px; }
+.cx__grid { display: grid; grid-template-columns: 1fr 1fr; align-items: start; gap: 12px; }
+.cx__field { display: grid; align-content: start; gap: 5px; font-size: 13px; font-weight: 600; }
+.cx__field input { height: 38px; padding: 0 11px; border: 1px solid #DCDCDC; border-radius: 8px; font: 400 14px var(--font); background: #fff; color: var(--text); }
+.cx__field input:focus { outline: 2px solid var(--text); outline-offset: -1px; }
+.cx__field small { color: var(--text-3); font-weight: 400; font-size: 12px; }
+.cx__more { border-top: 1px solid var(--line); padding-top: 10px; }
+.cx__more summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+.cx__msg { min-height: 18px; margin: 0; font-size: 13px; color: var(--good); }
+.cx__msg--bad { color: var(--bad); }
+.cx__foot { display: flex; align-items: center; gap: 8px; }
+.cx__spacer { flex: 1; }
+.cx__danger { color: var(--bad); }
+@media (max-width: 560px) { .cx__grid { grid-template-columns: 1fr; } }

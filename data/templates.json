@@ -1,0 +1,825 @@
+{
+  "templates": {
+    "stacked-cards": {
+      "name": "Stacked cards",
+      "bundle": {
+        "banner": "Ships today, delivered in 3 to 6 days",
+        "block_title": "Choose your offer",
+        "cta_noun": "items",
+        "unit_noun": "item",
+        "show_unit": false,
+        "tiers": [
+          {
+            "buy": 1,
+            "label": "Buy once"
+          },
+          {
+            "buy": 1,
+            "label": "Buy 1 + Get 1 FREE",
+            "free": 1
+          },
+          {
+            "buy": 2,
+            "label": "Buy 2 + Get 2 FREE",
+            "free": 2,
+            "badge": "MOST POPULAR",
+            "default": true
+          },
+          {
+            "buy": 3,
+            "label": "Buy 3 + Get 3 FREE",
+            "free": 3,
+            "badge": "BEST VALUE"
+          }
+        ],
+        "design": "cards",
+        "style": {
+          "badge_style": "tab",
+          "badge_case": "none",
+          "tracking": "normal",
+          "banner_style": "box",
+          "banner_bg": "#f4f4f4",
+          "accent": "#868686",
+          "selected_bg": "#e9e9e9",
+          "border": "#dbdbdb",
+          "cards_bg": "#ffffff",
+          "sel_border": 2,
+          "radius": 16,
+          "spacing": 9,
+          "bar_pad_y": 12,
+          "bar_pad_x": 13,
+          "row_gap": 18,
+          "dot_size": 20,
+          "dot_border": 2,
+          "dot_color": "#dbdbdb",
+          "dot_style": "fill",
+          "badge_bg": "#868686",
+          "badge_text": "#ffffff",
+          "badge_size": 12,
+          "badge_weight": 700,
+          "badge_top": 10,
+          "badge_ear": 8,
+          "badge_pad_y": 6,
+          "badge_lh": 12,
+          "badge_pad_x": 8,
+          "badge_radius": 5,
+          "badge_right": 14,
+          "badge_space": 0,
+          "badge_pad_in": 14,
+          "title_size": 16,
+          "title_weight": 600,
+          "title_lh": 22,
+          "title_color": "#000000",
+          "price_size": 16,
+          "price_weight": 600,
+          "price_lh": 22,
+          "price_color": "#000000",
+          "strike_size": 13,
+          "strike_weight": 500,
+          "strike_lh": 18,
+          "strike": "#555555",
+          "link_size": 13,
+          "link_color": "#000000"
+        },
+        "hide_title": true,
+        "hide_save": true,
+        "one_variant": true,
+        "first_link": true,
+        "first_link_text": "Buy once: {{price}} (no savings)",
+        "title": ""
+      }
+    },
+    "classic-rows": {
+      "name": "Classic rows",
+      "bundle": {
+        "banner": "",
+        "block_title": "Choose your offer",
+        "cta_noun": "items",
+        "unit_noun": "item",
+        "show_unit": false,
+        "tiers": [
+          {
+            "buy": 1,
+            "label": "Buy 1",
+            "sub": "1 item",
+            "gifts": [
+              {
+                "type": "shipping",
+                "text": "Free shipping"
+              }
+            ]
+          },
+          {
+            "buy": 1,
+            "label": "Buy 1, Get 1 Free",
+            "free": 1,
+            "sub": "{{quantity}} items · Save {{saved_total}}",
+            "tag": "Launch offer",
+            "default": true,
+            "gifts": [
+              {
+                "type": "shipping",
+                "text": "Free shipping"
+              }
+            ],
+            "countdown": true
+          },
+          {
+            "buy": 2,
+            "label": "Buy 2, Get 2 Free",
+            "free": 2,
+            "sub": "{{quantity}} items · Save {{saved_total}}",
+            "badge": "Best value",
+            "tag": "Launch offer",
+            "badge_style": "foot",
+            "gifts": [
+              {
+                "type": "shipping",
+                "text": "Free shipping"
+              }
+            ],
+            "countdown": true
+          }
+        ],
+        "design": "classic",
+        "style": {
+          "tracking": "normal",
+          "price_layout": "stack",
+          "gift_style": "line",
+          "edge": 6,
+          "radius": 10,
+          "sel_border": 1,
+          "spacing": 17,
+          "bar_pad_y": 16,
+          "bar_pad_b": 10,
+          "bar_pad_x": 11,
+          "row_gap": 15,
+          "thumb_gap": -8,
+          "chips_pad": 22,
+          "border": "#d5d5d5",
+          "accent": "#404040",
+          "selected_bg": "#f2f2f2",
+          "text": "#1b1b1b",
+          "thumb_size": 52,
+          "thumb_h": 63,
+          "thumb_cap_size": 9,
+          "free_pad_y": 0,
+          "free_pad_x": 4,
+          "plus_size": 13,
+          "plus_weight": 700,
+          "plus_color": "#404040",
+          "title_size": 14,
+          "title_weight": 700,
+          "title_lh": 18,
+          "title_color": "#1b1b1b",
+          "subtitle_size": 11,
+          "subtitle_weight": 400,
+          "subtitle_color": "#1b1b1b",
+          "price_size": 14,
+          "price_weight": 700,
+          "price_color": "#404040",
+          "strike_size": 19,
+          "strike_weight": 600,
+          "strike": "#7c7c7c",
+          "gift_size": 10,
+          "gift_weight": 400,
+          "gift_text": "#404040",
+          "gift_line": "#ececec",
+          "gift_top": 8,
+          "gift_pad": 6,
+          "tag_bg": "#e5e5e5",
+          "tag_text": "#1b1b1b",
+          "chip_size": 9,
+          "chip_pad_y": 8,
+          "chip_pad_x": 8,
+          "chip_radius": 7,
+          "chip_top": 12,
+          "timer_bg": "#1b1b1b",
+          "timer_text": "#ffffff",
+          "timer_accent": "#e5e5e5",
+          "badge_bg": "#e5e5e5",
+          "badge_text": "#1b1b1b",
+          "rows_line": "#d8d8d8",
+          "rows_hint_size": 12,
+          "rows_num_size": 14,
+          "rows_num_color": "#404040",
+          "rows_free_size": 9,
+          "rows_label_size": 11,
+          "rows_label_color": "#5e5e5e",
+          "dd_h": 40,
+          "dd_radius": 6,
+          "dd_border": "#e5e5e5",
+          "dd_size": 13,
+          "dd_swatch": 20,
+          "rows_num_w": 42,
+          "rows_size_w": 94,
+          "rows_col_gap": 10,
+          "badge_style": "foot",
+          "rows_hint_color": "#737373",
+          "rows_hint_top": 12,
+          "thumb_stack_x": 10,
+          "thumb_stack_y": 8,
+          "sub_lh": 19,
+          "thumb_cap_lh": 16,
+          "rows_hint_align": "left",
+          "rows_hint_x": 14,
+          "badge_case": "none",
+          "badge_size": 9,
+          "badge_weight": 600,
+          "badge_pad_y": 2,
+          "badge_pad_x": 7,
+          "badge_radius": 20,
+          "badge_lh": 13
+        },
+        "bar_thumbs": "stack",
+        "rows_labels": true,
+        "rows_hint": "Choose your size, then adjust each item if needed.",
+        "tag_position": "top",
+        "countdown": {
+          "mode": "midnight",
+          "label": "Ends in"
+        },
+        "picker": "rows",
+        "title": ""
+      }
+    },
+    "multipack": {
+      "name": "Multipack pills",
+      "bundle": {
+        "banner": "",
+        "block_title": "Quantity",
+        "cta_noun": "items",
+        "unit_noun": "item",
+        "show_unit": true,
+        "tiers": [
+          {
+            "buy": 10,
+            "label": "10-Pack",
+            "off": {
+              "type": "percent",
+              "value": 45.0
+            },
+            "sub": "Save {{saved_total}}",
+            "badge": "BEST DEAL",
+            "short": "10"
+          },
+          {
+            "buy": 6,
+            "label": "6-Pack",
+            "off": {
+              "type": "percent",
+              "value": 35.0
+            },
+            "sub": "Save {{saved_total}}",
+            "short": "6"
+          },
+          {
+            "buy": 3,
+            "label": "3-Pack",
+            "off": {
+              "type": "percent",
+              "value": 25.0
+            },
+            "sub": "Save {{saved_total}}",
+            "short": "3",
+            "default": true,
+            "mixes": [
+              {
+                "name": "Top Seller",
+                "badge": "Top Seller",
+                "colors": [
+                  "Black",
+                  "Charcoal",
+                  "White"
+                ]
+              },
+              {
+                "name": "Dark Trio",
+                "badge": "Hot Deal",
+                "colors": [
+                  "Black",
+                  "Black",
+                  "Charcoal"
+                ]
+              },
+              {
+                "name": "Light Trio",
+                "badge": "Hot Deal",
+                "colors": [
+                  "White",
+                  "Charcoal",
+                  "White"
+                ]
+              }
+            ]
+          },
+          {
+            "buy": 1,
+            "label": "Singles",
+            "sub": "3 colors",
+            "short": "Single"
+          }
+        ],
+        "design": "pack",
+        "style": {
+          "badge_style": "floating",
+          "tracking": "normal",
+          "text": "#0a0a0a",
+          "title_color": "#0a0a0a",
+          "accent": "#0a0a0a",
+          "border": "#dbdbdb",
+          "radius": 5,
+          "sel_border": 1,
+          "badge_bg": "#666666",
+          "badge_text": "#ffffff",
+          "badge_size": 9,
+          "badge_weight": 700,
+          "badge_radius": 20,
+          "badge_pad_y": 3,
+          "badge_lh": 10,
+          "badge_pad_x": 5,
+          "badge_top": 10,
+          "badge_left": 11,
+          "badge_ring": "#ffffff",
+          "badge_ring_w": 1,
+          "pill_h": 46,
+          "pill_lh": 15,
+          "pill_pad": 6,
+          "pill_title_size": 15,
+          "pill_weight": 400,
+          "pill_on_weight": 500,
+          "swatch_size": 40,
+          "pill_sub_size": 12,
+          "subtitle_color": "#626262",
+          "size_head_size": 14,
+          "size_btn_w": 44,
+          "size_btn_h": 40,
+          "block_title_size": 14,
+          "mix_w": 88,
+          "mix_h": 96,
+          "mix_gap": 7,
+          "mix_label": "none",
+          "mix_badge_bg": "#0a0a0a",
+          "mix_badge_text": "#ffffff",
+          "mix_badge_size": 10,
+          "mix_badge_radius": 20,
+          "price_size": 23,
+          "unit_price_color": "#666666",
+          "unitp_size": 17,
+          "totals_size": 17,
+          "totals_weight": 700,
+          "price_color": "#404040",
+          "strike": "#6f6f6f",
+          "deal_bg": "#5d5d5d",
+          "deal_text_color": "#ffffff",
+          "deal_size": 14,
+          "deal_weight": 700,
+          "deal_radius": 5,
+          "deal_pad_y": 3,
+          "deal_pad_x": 8,
+          "cta_wait": "#0a0a0a",
+          "mix_name_size": 9
+        },
+        "require_selection": true,
+        "layout": "pills",
+        "size_first": true,
+        "deal_label": "Today's deal",
+        "cta_wait_text": "Select A Size",
+        "deal_text": "{{saved_percentage}} OFF",
+        "deal_note": "Saving {{saved_total}}",
+        "items_title": "Your Bundle",
+        "items_hint": "tap to customize",
+        "ship_line": false,
+        "title": ""
+      }
+    },
+    "gift-cards": {
+      "name": "Cards with gifts",
+      "bundle": {
+        "banner": "",
+        "block_title": "Choose your offer",
+        "cta_noun": "items",
+        "unit_noun": "item",
+        "show_unit": true,
+        "tiers": [
+          {
+            "buy": 1,
+            "label": "Buy One"
+          },
+          {
+            "buy": 2,
+            "label": "Buy 2 Get 1 Free Gift",
+            "off": {
+              "type": "percent",
+              "value": 20.0
+            },
+            "badge": "Most Popular",
+            "default": true
+          },
+          {
+            "buy": 3,
+            "label": "Buy 3 Get 2 Free Gifts",
+            "off": {
+              "type": "percent",
+              "value": 30.0
+            },
+            "badge": "Free Shipping"
+          }
+        ],
+        "design": "cards",
+        "style": {
+          "badge_style": "floating",
+          "badge_case": "none",
+          "badge_radius": 13,
+          "badge_pad_x": 18,
+          "badge_top": 8,
+          "badge_size": 12,
+          "badge_weight": 600,
+          "badge_bg": "#3f3f3f",
+          "badge_text": "#ffffff",
+          "tracking": "normal",
+          "badge_pad_y": 1,
+          "badge_lh": 15,
+          "badge_right": 10,
+          "thumb_size": 36,
+          "thumb_h": 61,
+          "row_height": 61,
+          "row_gap": 12,
+          "edge": 6,
+          "badge_space": 0,
+          "gift_style": "check",
+          "ship_style": "dashed",
+          "accent": "#3f3f3f",
+          "selected_bg": "#ebebeb",
+          "border": "#b3b3b3",
+          "sel_border": 1,
+          "radius": 10,
+          "bar_pad_y": 9,
+          "bar_pad_x": 12,
+          "spacing": 19,
+          "title_size": 14,
+          "title_weight": 600,
+          "title_lh": 19,
+          "title_color": "#000000",
+          "unit_size": 14,
+          "unit_lh": 21,
+          "unit_gap": 5,
+          "subtitle_color": "#000000",
+          "price_size": 14,
+          "price_lh": 19,
+          "price_gap": 4,
+          "price_color": "#3f3f3f",
+          "strike": "#3f3f3f",
+          "strike_size": 14,
+          "strike_lh": 21,
+          "gift_size": 13,
+          "gift_weight": 600,
+          "plus_size": 17,
+          "thumb_gap": 1,
+          "plus_weight": 700,
+          "plus_color": "#3f3f3f",
+          "ship_halo": 0,
+          "gift_text": "#000000",
+          "gift_note_size": 12,
+          "gift_note": "#666666",
+          "gift_line": "#c0c0c0",
+          "highlight_icon": "#7a7a7a",
+          "ladder_text": "#000000",
+          "ladder_label_bg": "#f7f7f7",
+          "ladder_title_size": 13,
+          "ladder_title_weight": 600,
+          "ladder_item_size": 10,
+          "ladder_pic": 48,
+          "ladder_accent": "#5e5e5e",
+          "ship_dot": "#3f3f3f",
+          "il_size_pos": "after"
+        },
+        "hide_title": true,
+        "hide_save": true,
+        "one_variant": true,
+        "gifts_selected_only": true,
+        "unit_text": "{{unit_price}} per item",
+        "bar_thumbs": "stack",
+        "gift_ladder": {
+          "title": "Gifts unlocked",
+          "items": [
+            {
+              "type": "shipping",
+              "text": "FREE Shipping",
+              "in_bar": false,
+              "value": 9.95,
+              "from": 0
+            },
+            {
+              "type": "product",
+              "title": "Sample gift",
+              "price": 29.95,
+              "text": "FREE Gift",
+              "image_size": 40,
+              "note": "$29.95 value",
+              "from": 1,
+              "sample": true
+            },
+            {
+              "type": "product",
+              "title": "Sample gift",
+              "price": 29.95,
+              "text": "FREE Gift",
+              "image_size": 40,
+              "note": "$29.95 value",
+              "from": 2,
+              "sample": true
+            }
+          ],
+          "in_bars": true
+        },
+        "ship_text": "Order today for delivery by {{date}}",
+        "picker": "inline",
+        "ship_line": false,
+        "title": ""
+      }
+    },
+    "quantity-cards": {
+      "name": "Quantity cards",
+      "bundle": {
+        "banner": "",
+        "block_title": "Choose your offer",
+        "cta_noun": "items",
+        "unit_noun": "item",
+        "show_unit": false,
+        "tiers": [
+          {
+            "buy": 1,
+            "label": "1 Item",
+            "default": true,
+            "highlights": [
+              "Your main benefit",
+              "Your second benefit",
+              "30-day risk-free trial"
+            ]
+          },
+          {
+            "buy": 2,
+            "label": "2 Items",
+            "off": {
+              "type": "percent",
+              "value": 20.0
+            },
+            "sub": "+ Free gift ",
+            "gifts": [
+              {
+                "type": "product",
+                "title": "Sample gift",
+                "price": 29.95,
+                "text": "+ FREE Gift",
+                "image_size": 40,
+                "sample": true
+              }
+            ],
+            "highlights": [
+              "One for you, one to share",
+              "Free gift included",
+              "Free shipping"
+            ]
+          },
+          {
+            "buy": 3,
+            "label": "3 Items",
+            "off": {
+              "type": "percent",
+              "value": 30.0
+            },
+            "sub": "+ Free gift & mystery gift ",
+            "badge": "Most Popular",
+            "gifts": [
+              {
+                "type": "product",
+                "title": "Sample gift",
+                "price": 29.95,
+                "text": "+ FREE Gift",
+                "image_size": 40,
+                "sample": true
+              }
+            ],
+            "highlights": [
+              "Best price per item",
+              "Free gift included",
+              "Free shipping"
+            ]
+          }
+        ],
+        "design": "cards",
+        "style": {
+          "badge_style": "tab",
+          "tracking": "normal",
+          "gift_style": "none",
+          "badge_size": 12,
+          "badge_weight": 600,
+          "badge_bg": "#000000",
+          "badge_text": "#ffffff",
+          "badge_top": 9,
+          "badge_ear": 8,
+          "badge_pad_y": 6,
+          "badge_lh": 12,
+          "badge_pad_x": 8,
+          "badge_radius": 5,
+          "badge_right": 9,
+          "edge": 5,
+          "row_gap": 18,
+          "accent": "#858585",
+          "selected_bg": "#e9e9e9",
+          "border": "#dbdbdb",
+          "cards_bg": "#ffffff",
+          "sel_border": 2,
+          "radius": 10,
+          "spacing": 10,
+          "bar_pad_y": 9,
+          "bar_pad_x": 19,
+          "title_size": 20,
+          "title_weight": 600,
+          "title_lh": 28,
+          "title_color": "#0c0c0c",
+          "price_size": 20,
+          "price_lh": 28,
+          "price_color": "#000000",
+          "strike_size": 14,
+          "strike_lh": 20,
+          "strike": "#555555",
+          "subtitle_size": 14,
+          "subtitle_weight": 400,
+          "subtitle_color": "#555555",
+          "save_bg": "#eeeeee",
+          "save_text_color": "#777777",
+          "save_size": 12,
+          "save_weight": 600,
+          "save_radius": 10,
+          "save_pad_y": 4,
+          "save_pad_x": 8,
+          "save_gap": 8,
+          "hl_size": 16,
+          "hl_gap": 8,
+          "hl_top": 9,
+          "badge_space": 0,
+          "hl_icon": 18,
+          "highlight_text": "#000000",
+          "highlight_icon": "#000000",
+          "badge_pad_in": 10,
+          "price_weight": 600,
+          "thumb_size": 48
+        },
+        "hide_title": true,
+        "save_text": "Save {{saved_percentage}}",
+        "save_position": "inline",
+        "bar_thumbs": "photo",
+        "title": ""
+      }
+    },
+    "rows-free-items": {
+      "name": "Rows with free items",
+      "bundle": {
+        "banner": "",
+        "block_title": "Your pack",
+        "cta_noun": "items",
+        "unit_noun": "item",
+        "show_unit": false,
+        "tiers": [
+          {
+            "buy": 1,
+            "label": "1 item"
+          },
+          {
+            "buy": 3,
+            "label": "3 items",
+            "free": 1,
+            "sub": "+ Free shipping",
+            "badge": "Best seller",
+            "tag": "+ 1 free",
+            "default": true
+          },
+          {
+            "buy": 5,
+            "label": "5 items",
+            "free": 2,
+            "off": {
+              "type": "amount",
+              "value": 1.0
+            },
+            "sub": "+ Free gift",
+            "badge": "Best deal",
+            "tag": "+ 2 free",
+            "gifts": [
+              {
+                "type": "product",
+                "title": "Sample gift",
+                "price": 29.95,
+                "text": "Free Sample gift",
+                "image_size": 40,
+                "sample": true
+              }
+            ]
+          }
+        ],
+        "design": "classic",
+        "style": {
+          "tracking": "normal",
+          "text": "#1b1b1b",
+          "accent": "#1b1b1b",
+          "border": "#f5f5f5",
+          "cards_bg": "#f5f5f5",
+          "selected_bg": "#ffffff",
+          "sel_border": 1,
+          "radius": 6,
+          "spacing": 16,
+          "bar_pad_y": 16,
+          "bar_pad_x": 15,
+          "row_gap": 12,
+          "row_height": 23,
+          "dot_size": 20,
+          "dot_border": 1,
+          "dot_color": "#a1a1a1",
+          "dot_style": "solid",
+          "block_title_size": 20,
+          "block_title_weight": 400,
+          "block_title_color": "#1b1b1b",
+          "title_size": 19,
+          "title_weight": 400,
+          "title_lh": 23,
+          "title_color": "#1b1b1b",
+          "tag_bg": "#e5e5e5",
+          "tag_text": "#1b1b1b",
+          "tag_border": "#1b1b1b",
+          "tag_case": "none",
+          "tag_size": 12,
+          "tag_weight": 500,
+          "tag_pad_y": 3,
+          "tag_pad_x": 5,
+          "tag_radius": 0,
+          "subtitle_style": "chip",
+          "subtitle_color": "#525252",
+          "sub_chip_bg": "#f5f5f5",
+          "sub_chip_border": "#d4d4d4",
+          "sub_chip_size": 12,
+          "sub_chip_weight": 500,
+          "chips_gap": 8,
+          "price_layout": "after",
+          "price_size": 17,
+          "price_weight": 700,
+          "price_color": "#1b1b1b",
+          "strike": "#737373",
+          "strike_size": 12,
+          "strike_weight": 400,
+          "price_strike_gap": 6,
+          "badge_style": "floating",
+          "badge_case": "none",
+          "badge_bg": "#1b1b1b",
+          "badge_text": "#ffffff",
+          "badge_size": 12,
+          "badge_weight": 500,
+          "badge_radius": 3,
+          "badge_pad_y": 1,
+          "badge_pad_x": 6,
+          "badge_lh": 14,
+          "badge_top": 7,
+          "badge_right": 11,
+          "badge_space": 0,
+          "rows_hint_size": 12,
+          "rows_hint_top": 6,
+          "rows_gap": 8,
+          "rows_hint_align": "left",
+          "rows_line": "#ffffff",
+          "rows_num_size": 12,
+          "rows_num_weight": 400,
+          "rows_num_color": "#737373",
+          "rows_num_w": 16,
+          "rows_color_w": 150,
+          "rows_size_w": 76,
+          "rows_col_gap": 8,
+          "rows_indent": 32,
+          "rows_free_style": "row",
+          "rows_free_bg": "#f9f9f9",
+          "dd_h": 40,
+          "dd_radius": 6,
+          "dd_border": "#e5e5e5",
+          "dd_size": 13,
+          "dd_swatch": 20,
+          "custom_bg": "#fbfbfb",
+          "custom_border": "#1b1b1b",
+          "custom_arrow_bg": "#e5e5e5",
+          "custom_size": 15,
+          "note_size": 12,
+          "note_color": "#737373",
+          "gift_style": "none",
+          "rows_hint_color": "#737373"
+        },
+        "hide_save": true,
+        "rows_hint": "Choose your size, then adjust each item if needed.",
+        "custom_text": "Build your own pack",
+        "bars_note": "Take your usual size.",
+        "rows_free_text": "Free",
+        "picker": "rows",
+        "ship_line": false,
+        "title": ""
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+/* Bars block: quantity + price row, texts, footer */
+.be__bars { display: flex; flex-direction: column; gap: 10px; }
+.be__tools { display: inline-flex; gap: 0; margin-left: auto; opacity: .7; }
+.be__bar:hover .be__tools, .be__bar[open] .be__tools { opacity: 1; }
+.be__tools button { display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 8px; background: none; color: var(--text-2); cursor: pointer; }
+.be__tools button:hover { background: #F1F2F5; color: var(--text); }
+.bar__qty { display: grid; grid-template-columns: 76px 76px minmax(0, 1fr) 110px; gap: 10px; align-items: end; }
+.bar__qty input[name="buy"], .bar__qty input[name="free"] { padding-right: 12px !important; }
+.bar__foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.bar__calc { font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.bar__calc b { color: var(--text); font-weight: 600; }
+.bar__calc s { margin-left: 2px; }
+.bar__actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 10px; }
+.bar__act { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; border: 0; border-radius: 999px; background: var(--pill); font: 500 13px var(--font); color: var(--text); cursor: pointer; }
+.bar__act:hover:not(:disabled) { background: #E4E6E9; }
+.bar__act:disabled { opacity: .45; cursor: default; }
+.bar__sold { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid #F0F1F3; font-size: 14px; font-weight: 500; }
+
+/* bars: indented, a drag handle on the left of each card, a ... menu on the right */
+.be__bars, .bar__addzone { margin-left: 28px; }
+.be__bar { position: relative; }
+.bar__grip { position: absolute; left: -27px; top: 50%; display: grid; place-items: center; width: 22px; height: 30px; margin-top: -15px; border-radius: 6px; color: #4A4F55; cursor: grab; }
+.be__bar[open] > summary .bar__grip { top: 26px; }
+.bar__grip:hover { background: #EBECEE; }
+.be__bar.is-dragging { opacity: .45; }
+.be__bar > summary { position: static; }
+.bar__more-wrap { position: relative; margin-left: auto; }
+.bar__dots { display: grid; place-items: center; width: 30px; height: 30px; border: 0; border-radius: 8px; background: none; color: var(--text); cursor: pointer; }
+.bar__dots:hover { background: #F1F2F4; }
+.bar__menu { position: absolute; z-index: 20; top: 34px; right: 0; display: flex; flex-direction: column; min-width: 168px; padding: 5px; border-radius: 12px; background: #fff;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, .12), 0 0 0 1px rgba(0, 0, 0, .06); }
+.bar__menu[hidden] { display: none; }
+.bar__menu button { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 9px; border: 0; border-radius: 8px; background: none; font: 400 13px var(--font); color: var(--text); text-align: left; cursor: pointer; }
+.bar__menu button:hover { background: #F4F5F7; }
+.bar__menu button.is-danger { color: #8C2B22; }
+.bar__menu svg { width: 15px; height: 15px; }
+/* Add a bar: dashed zone, a small black pill in its middle */
+.bar__addzone { display: grid; place-items: center; height: 56px; border: 1px dashed #CDD1D6; border-radius: 16px; }
+.bar__addbtn { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 12px 0 9px; border: 0; border-radius: 999px; background: #303030; font: 600 13px var(--font); color: #fff; cursor: pointer;
+  box-shadow: inset 0 -1px 0 #000, inset 0 1px 0 rgba(255, 255, 255, .18); }
+.bar__addbtn:hover { background: #1f1f1f; }
+.bar__addbtn svg { width: 16px; height: 16px; }

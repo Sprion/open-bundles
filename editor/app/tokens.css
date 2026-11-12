@@ -1,0 +1,21 @@
+/* Editor palette: neutral, black and white. --blue is the action colour (kept as a name for the shared styles). */
+:root {
+  --bg: #FFFFFF;
+  --panel: #F4F4F4;
+  --panel-soft: #F6F6F6;
+  --line: #ECECEC;
+  --blue: #111111;
+  --blue-soft: #F0F0F0;
+  --orange: #111111;
+  --orange-ink: #111111;
+  --text: #141414;
+  --text-2: #5C5C5C;
+  --text-3: #9A9A9A;
+  --good: #1F8A5B;
+  --good-soft: #E6F4ED;
+  --bad: #C8442A;
+  --bad-soft: #FBEAE5;
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --page: 1360px;
+}

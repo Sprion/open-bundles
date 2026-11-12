@@ -1,0 +1,7 @@
+/* Badges block: one framed card per badge */
+.bdg__list { display: flex; flex-direction: column; gap: 10px; }
+.bdg__list:empty { display: none; }
+.bdg { display: flex; flex-direction: column; gap: 14px; padding: 14px; border: 1px solid var(--ln); border-radius: 12px; }
+.bdg__head { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.bdg__head b { font-weight: 600; }
+[data-sec="badges"]:has([name="badges_on"]:not(:checked)) .bdg__list { opacity: .45; }
