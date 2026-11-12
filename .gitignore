@@ -3,9 +3,11 @@
 __pycache__/
 *.pyc
 node_modules/
-function/dist/
+app/extensions/open-bundles/dist/
+app/.shopify/
 stats/*.db
 # your own bundles and tests (remove these two lines to version them)
 data/bundles.json
 data/tests.json
 data/demo-results.json
+.theme-work/

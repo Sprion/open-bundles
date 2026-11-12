@@ -1,0 +1,12 @@
+{
+  "name": "open-bundles-app",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "deploy": "shopify app deploy",
+    "test": "npm test --workspaces"
+  },
+  "workspaces": [
+    "extensions/*"
+  ]
+}

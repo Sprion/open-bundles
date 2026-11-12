@@ -1,0 +1,15 @@
+# Shopify app that carries the bundle discount function (app/extensions/open-bundles).
+# client_id is filled in by `shopify app config link`, which creates the app in your Shopify organization.
+client_id = ""
+name = "Open Bundles"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[access_scopes]
+scopes = "read_products,read_orders,read_files,write_discounts"
+
+[auth]
+redirect_urls = [ "https://shopify.dev/apps/default-app-home/api/auth" ]
+
+[webhooks]
+api_version = "2026-07"
