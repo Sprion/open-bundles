@@ -1,0 +1,11 @@
+.env
+.open-bundles/
+__pycache__/
+*.pyc
+node_modules/
+function/dist/
+stats/*.db
+# your own bundles and tests (remove these two lines to version them)
+data/bundles.json
+data/tests.json
+data/demo-results.json
