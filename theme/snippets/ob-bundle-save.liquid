@@ -1,0 +1,6 @@
+{% doc %}
+  Saving pill of a bundle bar ("You save $50"). Text: tier save_text, else the bundle's save_text (Boxed
+  design: "You save {{saved_total}}"); hidden by hide_save or when there is no saving. Filled by ob-bundle.js.
+  @param {string} where - below (under the title), inline (next to it) or price (under the price).
+{% enddoc %}
+<span class="ob__save ob__save--{{ where }}" data-ob-save hidden></span>

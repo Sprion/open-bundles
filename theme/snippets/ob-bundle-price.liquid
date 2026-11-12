@@ -1,0 +1,8 @@
+{% doc %}
+  Price of a bundle bar: total and struck compare-at price (hidden by the bundle flag hide_compare), plus the saving
+  pill when the bundle's save_position is "price". Component of ob-bundle-bar; ob-bundle.js redraws the numbers.
+  @param {number} total - Bar total (cents).
+  @param {number} was - Struck price (cents).
+  @param {string} [save_here] - The bundle's save_position.
+{% enddoc %}
+<span class="ob__price"><b class="ob__now" data-ob-price>{{ total | money }}</b><s class="ob__was" data-ob-was>{% if was > total %}{{ was | money }}{% endif %}</s>{%- if save_here == 'price' -%}{%- render 'ob-bundle-save', where: 'price' -%}{%- endif -%}</span>

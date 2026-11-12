@@ -1,0 +1,14 @@
+{% doc %}
+  Price summary under the item pickers (Pack design, or bundle flag summary): price per item, struck and current
+  total, then the deal line: deal_text (pill, default "{{saved_percentage}} OFF") and deal_note (default
+  "Saving {{saved_total}}"). Filled by ob-bundle.js for the chosen bar and variants.
+  @param {object} bundle - The editor bundle.
+{% enddoc %}
+{%- capture def_deal -%}{% raw %}{{saved_percentage}} OFF{% endraw %}{%- endcapture -%}
+{%- capture def_nudge -%}{% raw %}Save up to {{saved_percentage}} with the {{pack}}{% endraw %}{%- endcapture -%}
+{%- capture def_note -%}{% raw %}Saving {{saved_total}}{% endraw %}{%- endcapture -%}
+<div class="ob__summary" data-ob-summary data-deal="{{ bundle.deal_text | default: def_deal | escape }}" data-note="{{ bundle.deal_note | default: def_note | escape }}"{% if bundle.hide_nudge %} data-no-nudge{% else %} data-nudge="{{ bundle.single_note | default: def_nudge | escape }}"{% endif %}>
+  <div class="ob__sumprice"><span class="ob__unitp"><b data-ob-sunit></b>/{{ bundle.unit_noun | default: 'item' | escape }}</span><span class="ob__totals"><s data-ob-swas></s><span data-ob-stotal></span></span></div>
+  <div class="ob__deal" data-ob-deal hidden><span data-ob-dealtext></span>{%- if bundle.deal_label != blank -%}<span class="ob__deallbl">{{ bundle.deal_label | escape }}</span>{%- endif -%}<span data-ob-dealnote></span></div>
+  <button type="button" class="ob__nudge" data-ob-nudge hidden></button>
+</div>

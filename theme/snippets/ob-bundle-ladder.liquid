@@ -1,0 +1,47 @@
+{% doc %}
+  "Gifts unlocked" panel of a editor bundle (bundle field gift_ladder {title, items [gift + from]}): every gift of the
+  bundle in one strip, the ones of a higher bar shown locked. The gifts themselves are bar gifts (core expands the
+  panel into each bar's gifts at sync), so they reach the cart and the discount function like any bar gift.
+  A shared script unlocks them when the shopper picks a bar (index of the checked bar radio in the offer block).
+  Colours: bundle style ladder_bg, ladder_text, ladder_accent.
+  @param {object} ladder - The bundle's gift_ladder.
+{% enddoc %}
+{%- if ladder.items.size > 0 -%}
+<div class="ob-gl" data-ob-gl>
+  <span class="ob-gl__title">{{ ladder.title | default: 'Gifts unlocked' | escape }}</span>
+  <div class="ob-gl__row">
+    {%- for g in ladder.items -%}
+      {%- unless forloop.first -%}<span class="ob-gl__plus" aria-hidden="true">+</span>{%- endunless -%}
+      {%- assign gv = g.price | default: g.value | default: 0 -%}
+      <div class="ob-gl__it" data-from="{{ g.from | default: 0 }}">
+        <span class="ob-gl__pic">
+          {%- if g.image != blank -%}<img src="{{ g.image | append: '&width=160' }}" alt="" width="56" height="56" loading="lazy">
+          {%- elsif g.type == 'shipping' -%}<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2.5 6.5h11v9h-11zM13.5 9.5h4l3 3v3h-7"/><circle cx="6.5" cy="17" r="1.7"/><circle cx="17" cy="17" r="1.7"/></svg>
+          {%- else -%}<svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="8.5" width="17" height="4" rx="1"/><path d="M5 12.5v8h14v-8M12 8.5v12M12 8.5S10.5 4 8.3 4.6 7.6 8.5 12 8.5zm0 0s1.5-4.5 3.7-3.9.7 3.9-3.7 3.9z"/></svg>{%- endif -%}
+          <span class="ob-gl__lock" aria-hidden="true"><svg viewBox="0 0 20 20" width="18" height="18"><rect x="4.5" y="9" width="11" height="8" rx="1.5" fill="currentColor"/><path d="M7 9V6.5a3 3 0 0 1 6 0V9" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></span>
+        </span>
+        {%- if gv > 0 -%}<s>{{ gv | times: 100 | round | money }}</s>{%- endif -%}
+        <b>{{ g.text | escape }}</b>
+        <small class="ob-gl__locked">{{ locked | default: 'Locked' | escape }}</small>
+      </div>
+    {%- endfor -%}
+  </div>
+</div>
+<script>
+if (!window.obGl) {
+  window.obGl = true;
+  const run = root => {
+    const first = root.querySelector('input[type=radio]');
+    if (!first) return;
+    const rs = [...root.querySelectorAll('input[type=radio]')].filter(r => r.name === first.name);
+    const idx = Math.max(0, rs.findIndex(r => r.checked));
+    root.querySelectorAll('[data-ob-gl] [data-from]').forEach(it => it.classList.toggle('is-locked', Number(it.dataset.from) > idx));
+  };
+  const rootOf = el => el.closest('[data-ob-block]');
+  document.addEventListener('change', e => { if (e.target.matches('input[type=radio]')) { const r = rootOf(e.target); if (r) run(r); } });
+  const all = () => document.querySelectorAll('[data-ob-gl]').forEach(g => { const r = rootOf(g); if (r) run(r); });
+  window.obGlRun = run;
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', all) : all();
+}
+</script>
+{%- endif -%}

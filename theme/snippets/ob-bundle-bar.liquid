@@ -1,0 +1,122 @@
+{% doc %}
+  One bar of a editor bundle (component of ob-bundle). Computes the bar's numbers once and passes them to its parts:
+  ob-bundle-badge, ob-bundle-countdown, ob-bundle-price, ob-bundle-save, ob-bundle-highlights, ob-bundle-gifts.
+  Prices are first drawn with the page's variant; assets/ob-bundle.js redraws them with the chosen variants.
+  @param {object} bundle - The editor bundle.
+  @param {object} tier - The bar (bundle.tiers[i]).
+  @param {number} i - Bar index.
+  @param {number} on - Index of the bar selected on load.
+  @param {string} bid - Block id.
+  @param {number} unit - Price of one item (cents).
+  @param {number} [unit_cmp] - Compare-at price of one item (cents).
+  @param {string} design - Bundle design.
+  @param {boolean} [first_link] - This bar is shown as the text link under the bars.
+{% enddoc %}
+{%- liquid
+  assign buy = tier.buy | default: 1 | plus: 0
+  assign free = tier.free | default: 0 | plus: 0
+  assign size = buy | plus: free
+  assign paid = unit | times: buy
+  assign off = 0
+  if tier.off.type == 'percent'
+    assign off = paid | times: tier.off.value | divided_by: 100.0 | round
+  elsif tier.off.type == 'amount'
+    assign off = tier.off.value | times: 100 | round
+  elsif tier.off.type == 'price'
+    assign target = tier.off.value | times: 100 | round
+    assign off = paid | minus: target | at_least: 0
+  endif
+  assign off = off | at_most: paid
+  assign total = paid | minus: off
+  assign gift_cmp = 0
+  for g in tier.gifts
+    if g.type == 'product' and g.in_compare
+      assign gift_cmp = g.price | times: 100 | round | plus: gift_cmp
+    endif
+  endfor
+  assign one_cmp = unit
+  if bundle.compare_multiplier > 1
+    assign one_cmp = unit | times: bundle.compare_multiplier | round
+  elsif unit_cmp > unit and design == 'boxed'
+    assign one_cmp = unit_cmp
+  endif
+  assign was = one_cmp | times: size | plus: gift_cmp
+  assign saved = was | minus: total
+  assign pct = 0
+  if was > 0
+    assign pct = saved | times: 100.0 | divided_by: was | round
+  endif
+  assign per = total | divided_by: size
+  assign v_pct = pct | append: '%'
+  assign v_saved = saved | money_without_trailing_zeros
+  assign v_total = total | money
+  assign v_unit = per | money
+  assign t_title = tier.label | default: size | escape | replace: '{{saved_percentage}}', v_pct | replace: '{{saved_total}}', v_saved | replace: '{{price}}', v_total | replace: '{{unit_price}}', v_unit | replace: '{{quantity}}', size
+  assign t_sub = tier.sub | escape | replace: '{{saved_percentage}}', v_pct | replace: '{{saved_total}}', v_saved | replace: '{{price}}', v_total | replace: '{{unit_price}}', v_unit | replace: '{{quantity}}', size
+  assign t_tag = tier.tag | escape | replace: '{{saved_percentage}}', v_pct | replace: '{{saved_total}}', v_saved | replace: '{{price}}', v_total | replace: '{{unit_price}}', v_unit | replace: '{{quantity}}', size
+  if tier.sold_out
+    assign t_tag = bundle.ui.sold_out | default: 'Sold out'
+  endif
+  assign t_badge = tier.badge | escape | replace: '{{saved_percentage}}', v_pct | replace: '{{saved_total}}', v_saved | replace: '{{price}}', v_total | replace: '{{unit_price}}', v_unit | replace: '{{quantity}}', size
+  assign bs = tier.badge_style | default: bundle.style.badge_style | default: 'floating'
+  assign save_pos = bundle.save_position | default: 'below'
+  capture bcss
+    if tier.badge_color != blank
+      echo 'color:' | append: tier.badge_color | append: ';'
+    endif
+    if tier.badge_bg != blank
+      echo 'background:' | append: tier.badge_bg | append: ';'
+    endif
+    if tier.badge_size
+      echo 'font-size:' | append: tier.badge_size | append: 'px;'
+    endif
+  endcapture
+  assign has_chips = false
+  if bundle.tag_position == 'top'
+    if t_tag != blank or tier.countdown
+      assign has_chips = true
+    endif
+  endif
+  if bs == 'chip' and t_badge != blank
+    assign has_chips = true
+  endif
+  assign hl_always = false
+  if bundle.highlights_mode == 'always'
+    assign hl_always = true
+  endif
+-%}
+{%- capture gift_ids -%}{%- for g in tier.gifts -%}{%- if g.type == 'product' and g.choose != true and g.sample != true -%}{{ g.variant }},{%- endif -%}{%- endfor -%}{%- endcapture -%}
+<label class="ob__bar{% if i == on and tier.sold_out != true %} is-on{% endif %}{% if tier.sold_out %} is-soldout{% endif %}{% if tier.image.url != blank %} has-img{% endif %}{% if first_link %} ob-linktier{% endif %}{% if t_badge != blank %} has-badge-{{ bs }}{% endif %}{% if has_chips %} has-chips{% endif %}" data-ob-bar="{{ i }}" data-units="{{ size }}" data-gifts="{{ gift_ids }}"{% if tier.defaults %} data-defaults="{{ tier.defaults | json | escape }}"{% endif %}{% if tier.mixes %} data-mixes="{{ tier.mixes | json | escape }}"{% endif %}>
+  <input type="radio" name="ob-{{ bid }}" value="{{ i }}"{% if i == on and tier.sold_out != true %} checked{% endif %}{% if tier.sold_out %} disabled{% endif %}>
+  {%- if bs == 'ribbon' -%}{%- render 'ob-bundle-badge', text: t_badge, style: 'ribbon', css: bcss -%}{%- elsif bs != 'inline' and bs != 'foot' and bs != 'chip' -%}{%- render 'ob-bundle-badge', text: t_badge, style: bs, css: bcss -%}{%- endif -%}
+  {%- if bundle.tag_position == 'top' -%}
+    {%- if has_chips -%}<span class="ob__chips"><span class="ob__tag ob__tag--top" data-ob-tag>{{ t_tag }}</span>{%- if bs == 'chip' -%}{%- render 'ob-bundle-badge', text: t_badge, style: 'chip', css: bcss -%}{%- endif -%}{%- if tier.countdown -%}{%- render 'ob-bundle-countdown', cd: bundle.countdown, where: 'chip' -%}{%- endif -%}</span>{%- endif -%}
+  {%- elsif bs == 'chip' and t_badge != blank -%}<span class="ob__chips">{%- render 'ob-bundle-badge', text: t_badge, style: 'chip', css: bcss -%}</span>{%- if tier.countdown -%}{%- render 'ob-bundle-countdown', cd: bundle.countdown, where: 'bar' -%}{%- endif -%}
+  {%- elsif tier.countdown -%}{%- render 'ob-bundle-countdown', cd: bundle.countdown, where: 'bar' -%}{%- endif -%}
+  <span class="ob__row">
+    {%- comment -%} Bar picture (bundle.bar_thumbs): the bar's own image wins; stack = product photos of the items,
+      number = "#1", dot = a small dot, none = nothing; with no picture the radio dot stays. {%- endcomment -%}
+    {%- assign pic = bundle.bar_thumbs -%}
+    {%- if pic == 'stack' and tier.image.url == blank -%}<span class="ob__thumbs" data-ob-thumbs></span>{%- endif -%}
+    {%- if pic == 'photo' and tier.image.url == blank -%}<span class="ob__thumbs ob__thumbs--one" data-ob-thumbs data-one></span>{%- endif -%}
+    {%- if pic == 'number' and tier.image.url == blank -%}<span class="ob__pnum" aria-hidden="true">#{{ i | plus: 1 }}</span>
+    {%- elsif pic == 'dot' and tier.image.url == blank -%}<span class="ob__pdot" aria-hidden="true"></span>
+    {%- elsif pic == 'none' -%}<span class="ob__dot" aria-hidden="true"></span>
+    {%- elsif tier.image.url != blank -%}<img class="ob__img" src="{{ tier.image.url | append: '&width=240' }}" alt="" width="{{ tier.image.size }}" height="{{ tier.image.size }}" loading="lazy" style="width:{{ tier.image.size }}px;height:{{ tier.image.size }}px;border-radius:{{ tier.image.radius }}px">{%- else -%}<span class="ob__dot" aria-hidden="true"></span>{%- endif -%}
+    <span class="ob__text">
+      <span class="ob__title"><span data-ob-title>{{ t_title }}</span>{%- unless bundle.tag_position == 'top' -%}<span class="ob__tag" data-ob-tag>{{ t_tag }}</span>{%- endunless -%}{%- if bs == 'inline' or bs == 'foot' and tier.gifts == blank -%}{%- render 'ob-bundle-badge', text: t_badge, style: 'inline', css: bcss -%}{%- endif -%}{%- if bundle.style.subtitle_style == 'chip' and tier.sub != blank -%}<span class="ob__sub ob__sub--chip" data-ob-sub>{{ t_sub }}</span>{%- endif -%}{%- if save_pos == 'inline' -%}{%- render 'ob-bundle-save', where: 'inline' -%}{%- endif -%}</span>
+      {%- if tier.sub != blank and bundle.style.subtitle_style != 'chip' -%}<span class="ob__sub" data-ob-sub>{{ t_sub }}</span>{%- endif -%}
+      {%- if save_pos == 'below' -%}{%- render 'ob-bundle-save', where: 'below' -%}{%- endif -%}
+      <span class="ob__unit" data-ob-unit></span>
+    </span>
+    {%- render 'ob-bundle-price', total: total, was: was, save_here: save_pos -%}
+  </span>
+  {%- render 'ob-bundle-highlights', items: tier.highlights, always: hl_always -%}
+  {%- liquid
+    assign foot = ''
+    if bs == 'foot' and tier.gifts != blank
+      assign foot = t_badge
+    endif
+  -%}
+  {%- render 'ob-bundle-gifts', gifts: tier.gifts, in_bars: bundle.gift_ladder.in_bars, look: bundle.style.gift_style, foot: foot, foot_css: bcss, title: bundle.gift_title, free: bundle.ui.free -%}
+</label>

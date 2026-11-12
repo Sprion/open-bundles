@@ -1,0 +1,36 @@
+{% doc %}
+  Countdown of a editor bundle (bundle field countdown {mode, label, end, minutes}).
+  mode midnight: until the visitor's next local midnight, every day. fixed: until `end` (ISO date), then hidden.
+  evergreen: `minutes` from the visitor's first view (stored in localStorage), then starts again.
+  One shared script ticks every [data-ob-cd] on the page. Colours: bundle style timer_bg, timer_text, timer_accent.
+  @param {object} cd - The bundle's countdown.
+  @param {string} [where] - bar (chip on a bar), chip (inside the bar's chip row, bundle tag_position top), banner (next to the banner text) or inline.
+{% enddoc %}
+{%- if cd.mode != blank -%}
+<span class="ob-cd ob-cd--{{ where | default: 'inline' }}" data-ob-cd data-mode="{{ cd.mode }}"{% if cd.end %} data-end="{{ cd.end | escape }}"{% endif %}{% if cd.minutes %} data-min="{{ cd.minutes }}"{% endif %}><span>{{ cd.label | default: 'Ends in' | escape }}</span><b data-ob-cd-t>--:--:--</b></span>
+<script>
+if (!window.obCd) {
+  window.obCd = true;
+  const left = el => {
+    const now = Date.now(), d = el.dataset;
+    if (d.mode === 'fixed') return new Date(d.end).getTime() - now;
+    if (d.mode === 'evergreen') {
+      const span = (Number(d.min) || 15) * 60000, key = 'obcd-' + d.min;
+      let start = 0;
+      try { start = Number(localStorage.getItem(key)) || 0; } catch (e) {}
+      if (!start || now - start >= span) { start = now; try { localStorage.setItem(key, String(start)); } catch (e) {} }
+      return start + span - now;
+    }
+    const m = new Date(); m.setHours(24, 0, 0, 0); return m.getTime() - now;
+  };
+  const pad = n => String(n).padStart(2, '0');
+  const tick = () => document.querySelectorAll('[data-ob-cd]').forEach(el => {
+    const ms = left(el);
+    if (ms <= 0 && el.dataset.mode === 'fixed') { el.hidden = true; return; }
+    const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600);
+    el.querySelector('[data-ob-cd-t]').textContent = (h >= 24 ? Math.floor(h / 24) + 'd ' + pad(h % 24) : pad(h)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60);
+  });
+  tick(); setInterval(tick, 1000);
+}
+</script>
+{%- endif -%}

@@ -1,0 +1,19 @@
+{% doc %}
+  Item pickers of a editor bundle (component of ob-bundle): an empty panel that ob-bundle.js fills for the chosen bar,
+  in the bundle's picker mode:
+    swatches - per item: colour photo swatches (menu when many colours) + size menu (Rows / Cards designs);
+    rows     - per item: "#1" + size menu + colour menu with photo (Boxed design);
+    tiles    - colour mixes of the bar, one photo tile per item opening a sheet (size buttons, colour swatches,
+               apply to all); one-item bars show size buttons and swatches inline (Pack design).
+  The panel sits under the chosen bar (layouts list, compact) or under all the bars (columns, grid, pills).
+  @param {string} bid - Block id.
+  @param {product} product - Product.
+  @param {number} color_idx - Index of the colour option (-1 = none).
+  @param {number} size_idx - Index of the size option (-1 = none).
+{% enddoc %}
+<div class="ob__panel" data-ob-panel></div>
+<dialog class="ob__dialog ob__sheet" data-ob-sheet aria-label="Customize">
+  <button type="button" class="ob__x" data-ob-close aria-label="Close">×</button>
+  <div class="ob__sheet-gal" data-ob-sgal></div>
+  <div class="ob__sheet-body" data-ob-sbody></div>
+</dialog>

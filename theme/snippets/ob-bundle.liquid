@@ -1,0 +1,256 @@
+{% doc %}
+  Bundle offer block, built from components (one snippet per piece):
+    ob-bundle-css (presets + components styles) · ob-bundle-bar (one bar) → ob-bundle-badge, ob-bundle-countdown,
+    ob-bundle-price, ob-bundle-save, ob-bundle-highlights, ob-bundle-gifts · ob-bundle-variants (item pickers) ·
+    ob-bundle-firstlink · ob-bundle-ladder · ob-bundle-summary · ob-bundle-cta. Behaviour: assets/ob-bundle.js.
+  A design (bundle field design: classic, cards, boxed, pack) is only a set of defaults: CSS preset, item picker
+  (field picker: swatches, rows, tiles), layout (field layout: list, columns, grid, compact, pills), price summary
+  and shipping line. Every value can be set on the bundle (apps/bundles/CONTEXT.md).
+  @param {product} product - Product.
+  @param {string} bundle_id - Bundle id.
+  @param {string} [uid] - Suffix keeping ids unique when several bundles are on one page.
+  @param {section} [section] - Product section: its id is sent with variant:changed so the theme gallery can follow.
+  @param {variant} [current_variant] - Initial variant.
+{% enddoc %}
+{%- liquid
+  assign bundle = shop.metafields.open_bundles.config.value.bundles[bundle_id]
+  assign design = bundle.design | default: 'boxed'
+  assign bid = bundle_id | append: '-' | append: uid
+  case design
+    when 'pack'
+      assign d_picker = 'tiles'
+      assign d_layout = 'pills'
+    when 'boxed'
+      assign d_picker = 'rows'
+      assign d_layout = 'list'
+    else
+      assign d_picker = 'swatches'
+      assign d_layout = 'list'
+  endcase
+  assign picker = bundle.picker | default: d_picker
+  assign lay = bundle.layout | default: d_layout
+  assign cur = current_variant | default: product.selected_or_first_available_variant
+  assign color_idx = -1
+  assign size_idx = -1
+  for opt in product.options_with_values
+    assign o = opt.name | downcase
+    if o contains 'colo' or o contains 'couleur'
+      assign color_idx = forloop.index0
+    elsif o contains 'size' or o contains 'taille'
+      assign size_idx = forloop.index0
+    endif
+  endfor
+  comment
+    Size guide: the content of a store page (Online Store > Pages), named by the bundle's size_guide_page handle.
+  endcomment
+  assign sg_html = ''
+  if bundle.size_guide_page != blank
+    assign sg_html = pages[bundle.size_guide_page].content
+  endif
+  assign show_sg = false
+  if sg_html != blank
+    assign show_sg = true
+  endif
+  assign default_i = 0
+  for tier in bundle.tiers
+    if tier.default and tier.sold_out != true
+      assign default_i = forloop.index0
+    endif
+  endfor
+  assign summary = false
+  if design == 'pack' or bundle.summary
+    assign summary = true
+  endif
+  assign ship_line = false
+  if design == 'pack' or design == 'boxed'
+    assign ship_line = true
+  endif
+  if bundle.ship_line == false
+    assign ship_line = false
+  elsif bundle.ship_line == true
+    assign ship_line = true
+  endif
+-%}
+{%- liquid
+  assign bst = bundle.style
+  capture xcls
+    if bst.dot_style == 'solid' or bst.dot_style == 'ring'
+      echo ' ob--dot-' | append: bst.dot_style
+    endif
+    if bst.subtitle_style == 'chip'
+      echo ' ob--sub-chip'
+    endif
+    if bst.tag_case == 'none'
+      echo ' ob--tagcase-none'
+    endif
+    if bst.chip_case == 'upper'
+      echo ' ob--chipcase-upper'
+    endif
+    if bst.sw_ratio == 'square'
+      echo ' ob--sw-sq'
+    endif
+    if bst.dd_caret == 'triangle'
+      echo ' ob--caret-tri'
+    endif
+    if bst.rows_free_style == 'row'
+      echo ' ob--free-row'
+    endif
+    if bundle.gifts_below_picker
+      echo ' ob--gifts-below'
+    endif
+    if bst.banner_look == 'ticket'
+      echo ' ob--banner-ticket'
+    endif
+    if bst.custom_style == 'link' or bst.custom_style == 'button'
+      echo ' ob--cs-' | append: bst.custom_style
+    endif
+    if bst.il_size_pos == 'after'
+      echo ' ob--ilsize-after'
+    endif
+  endcapture
+  capture xdata
+    if bst.cta_case
+      echo ' data-cta-case="' | append: bst.cta_case | append: '"'
+    endif
+    if bundle.cta_no_mark
+      echo ' data-cta-nomark'
+    endif
+    if bst.rows_free_style
+      echo ' data-rows-free="' | append: bst.rows_free_style | append: '"'
+    endif
+    if bundle.rows_free_text != blank
+      assign rft = bundle.rows_free_text | escape
+      echo ' data-rows-free-text="' | append: rft | append: '"'
+    endif
+    if bundle.gifts_below_picker
+      echo ' data-gifts-below'
+    endif
+    if bst.size_label == 'none'
+      echo ' data-no-size-label'
+    endif
+    if bst.btn_was_color
+      echo ' data-btn-was="' | append: bst.btn_was_color | append: '"'
+    endif
+    if bundle.ui
+      assign uij = bundle.ui | json | escape
+      echo ' data-ui="' | append: uij | append: '"'
+    endif
+    if bundle.pb_min
+      echo ' data-pb-min="' | append: bundle.pb_min | append: '"'
+    endif
+    if bundle.apply_all == 'both'
+      echo ' data-apply-all="both"'
+    endif
+    if bst.mix_pic
+      echo ' data-mix-pic="' | append: bst.mix_pic | append: '"'
+    endif
+    if bundle.ship_locale or bundle.ship_date
+      echo ' data-ship-locale="' | append: bundle.ship_locale | default: 'en' | append: '" data-ship-date="' | append: bundle.ship_date | default: 'short' | append: '"'
+    endif
+  endcapture
+-%}
+{%- render 'ob-bundle-css', bid: bid, st: bundle.style, css: bundle.css, hide_compare: bundle.hide_compare -%}
+<div class="ob ob--{{ design }} ob--{{ lay }} ob--pick-{{ picker }}{% if bundle.style.subtitle_style == 'italic' %} ob--italic{% endif %} ob--sw-{{ bundle.style.swatch_shape | default: 'default' }}{% if bundle.style.ship_style %} ob--ship-{{ bundle.style.ship_style }}{% endif %}{% if bundle.gifts_selected_only %} ob--gifts-sel{% endif %}{% if bundle.cta_arrow %} ob--cta-arrow{% endif %}{% if bundle.style.badge_case == 'none' %} ob--bcase-none{% endif %}{% if bundle.style.mix_label == 'none' %} ob--mixlabel-none{% endif %}{% if bundle.style.dot_style == 'fill' %} ob--dot-fill{% endif %}{% if bundle.style.size_btn_w %} ob--gsize-fixed{% endif %}{% if bundle.style.tracking %} ob--track-{{ bundle.style.tracking }}{% endif %}{% if bundle.style.font %} ob--font-{{ bundle.style.font }}{% endif %}{% if bundle.bar_thumbs == 'stack' %} ob--thumbs{% endif %}{% if bundle.style.banner_style %} ob--banner-{{ bundle.style.banner_style }}{% endif %}{% if bundle.style.price_layout %} ob--price-{{ bundle.style.price_layout }}{% endif %}{% if bundle.style.gift_style %} ob--gift-{{ bundle.style.gift_style }}{% endif %}{{ xcls }} ob-{{ bid }}" data-ob-block data-ob="{{ bundle_id | escape }}" data-design="{{ design }}" data-picker="{{ picker }}" data-layout="{{ lay }}"{% if section %} data-section-id="{{ section.id }}"{% endif %} data-currency="{{ cart.currency.iso_code | default: shop.currency }}" data-noun="{{ bundle.cta_noun | default: 'items' | escape }}" data-unit-noun="{{ bundle.unit_noun | default: 'item' | escape }}"{% if bundle.show_unit == false %} data-no-unit{% endif %}{% if bundle.total_in_button %} data-total-btn{% endif %}{% if bundle.hide_compare %} data-hide-cmp{% endif %}{% if bundle.size_first %} data-size-first{% endif %}{% if bundle.unit_text != blank %} data-unit-text="{{ bundle.unit_text | escape }}"{% endif %}{% if bundle.cta_arrow %} data-btn-arrow{% endif %}{% if bundle.cta_text != blank %} data-cta-text="{{ bundle.cta_text | escape }}"{% endif %}{% if bundle.cta_wait_text != blank %} data-cta-wait="{{ bundle.cta_wait_text | escape }}"{% endif %}{% if bundle.rows_labels %} data-rows-labels{% endif %}{% if bundle.rows_hint != blank %} data-rows-hint="{{ bundle.rows_hint | escape }}"{% endif %}{% if bundle.gift_ladder.in_bars %} data-ladder-in-bars{% endif %}{% if bundle.style.button_price %} data-btn-price="{{ bundle.style.button_price }}"{% endif %}{% if bundle.require_selection %} data-require-sel{% endif %}{% if bundle.one_variant %} data-one-variant{% endif %}{% if bundle.hide_unavailable %} data-hide-unavailable{% endif %}{% if bundle.default_color != blank %} data-def-color="{{ bundle.default_color | escape }}"{% endif %}{% if bundle.default_size != blank %} data-def-size="{{ bundle.default_size | escape }}"{% endif %}{% if bundle.skip_cart %} data-skip-cart{% endif %} data-cmp-mult="{{ bundle.compare_multiplier | default: 1 }}"{% if bundle.save_text != blank %} data-save-text="{{ bundle.save_text | escape }}"{% elsif design == 'boxed' %} data-save-text="You save {% raw %}{{saved_total}}{% endraw %}"{% endif %}{% if bundle.hide_save %} data-hide-save{% endif %}{% if bundle.swatches.type == 'color' %} data-sw-colors="{{ bundle.swatches.colors | json | escape }}"{% endif %}{% if bundle.style.button %} data-btn-bg="{{ bundle.style.button }}"{% endif %}{% if bundle.style.button_text %} data-btn-fg="{{ bundle.style.button_text }}"{% endif %}{% if bundle.style.cta_radius != nil %} data-cta-radius="{{ bundle.style.cta_radius }}"{% endif %}{% if bundle.style.cta_h %} data-cta-h="{{ bundle.style.cta_h }}"{% endif %}{% if bundle.style.cta_size %} data-cta-size="{{ bundle.style.cta_size }}"{% endif %}{% if bundle.style.cta_weight %} data-cta-weight="{{ bundle.style.cta_weight }}"{% endif %}{{ xdata }} data-items-title="{{ bundle.items_title | default: 'Your bundle' | escape }}" data-items-hint="{{ bundle.items_hint | default: 'tap to customize' | escape }}">
+  {%- if bundle.size_first and size_idx >= 0 -%}
+    <div class="ob__gsize" data-ob-gsize>
+      <div class="ob__gshead"><span>{{ product.options[size_idx] | escape }}: <b data-ob-gsv>{{ bundle.ui.choose_size | default: 'Choose a size.' | escape }}</b></span>{%- if show_sg -%}<button type="button" class="ob__gslink" data-ob-sg>{{ bundle.size_guide_text | default: bundle.ui.size_guide | default: 'Size guide' | escape }}</button>{%- endif -%}</div>
+      <div class="ob__btns"></div>
+    </div>
+  {%- endif -%}
+  {%- if bst.banner_look == 'ticket' and bundle.banner != blank -%}
+    {%- capture vtok -%}{% raw %}{{value}}{% endraw %}{%- endcapture -%}
+    {%- assign tv0 = bundle.tiers[default_i].banner_value -%}
+    <div class="ob__ticket" data-ob-ticket data-unit="{{ bundle.banner_unit | downcase | escape }}"{% if tv0 == blank %} hidden{% endif %}>
+      <span class="ob__tstub"><b data-ob-tval>{{ tv0 | escape }}</b><small>{{ bundle.banner_unit | escape }}</small></span>
+      <span class="ob__tbody">{%- if bundle.banner_title != blank -%}<em><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8.5 15.5 3l2 4.5a2.5 2.5 0 0 0 3.3 1.4l.9 2.1L9.2 16.5l-.9-2.1a2.5 2.5 0 0 0-1.4-3.3z"/></svg>{{ bundle.banner_title | escape }}</em>{%- endif -%}{%- capture tvh -%}<strong data-ob-tval2>{{ tv0 | escape }} {{ bundle.banner_unit | downcase | escape }}</strong>{%- endcapture -%}<span>{{ bundle.banner | escape | replace: vtok, tvh }}</span></span>
+    </div>
+  {%- endif -%}
+  {%- unless bundle.hide_title -%}
+  <div class="ob__top">
+    <h2>{{ bundle.block_title | default: 'Choose your offer' | escape }}{%- if design == 'pack' -%}<span class="ob__tname">: <b data-ob-tname></b></span>{%- endif -%}</h2>
+    {%- if show_sg and bundle.size_first != true -%}<button type="button" class="ob__sg" data-ob-sg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="1.5"/><path d="M6 7v3M10 7v4M14 7v3M18 7v4"/></svg>{{ bundle.size_guide_text | default: 'Size guide' | escape }}</button>{%- endif -%}
+  </div>
+  {%- endunless -%}
+  {%- if bst.banner_look != 'ticket' -%}{%- if bundle.banner != blank or bundle.countdown.in_banner -%}<p class="ob__banner"><span>{{ bundle.banner | escape }}{%- if bundle.countdown.in_banner -%}{%- render 'ob-bundle-countdown', cd: bundle.countdown, where: 'banner' -%}{%- endif -%}</span></p>{%- endif -%}{%- endif -%}
+  <div class="ob__list ob__list--{{ lay }}" data-ob-list style="--n:{{ bundle.tiers.size | at_most: 5 }}">
+    {%- for tier in bundle.tiers -%}
+      {%- assign first_link = false -%}
+      {%- if forloop.first and bundle.first_link -%}{%- assign first_link = true -%}{%- endif -%}
+      {%- render 'ob-bundle-bar', bundle: bundle, tier: tier, i: forloop.index0, on: default_i, bid: bid, unit: cur.price, unit_cmp: cur.compare_at_price, design: design, first_link: first_link -%}
+    {%- endfor -%}
+  </div>
+  {%- render 'ob-bundle-variants', bid: bid, product: product, color_idx: color_idx, size_idx: size_idx -%}
+  {%- if bundle.custom_text != blank -%}
+    <button type="button" class="ob__custom" data-ob-pack aria-haspopup="dialog"><span class="ob__cthumbs" data-ob-cthumbs></span><span class="ob__ctext">{{ bundle.custom_text | escape }}</span><span class="ob__carrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></button>
+  {%- endif -%}
+  {%- if bundle.bars_note != blank -%}<p class="ob__note">{{ bundle.bars_note | escape }}</p>{%- endif -%}
+  {%- if bundle.first_link -%}
+    {%- liquid
+      assign t0 = bundle.tiers[0]
+      assign p0 = cur.price | times: t0.buy
+      assign f0 = bundle.first_link_text | default: 'Buy once: {{price}}' | escape | replace: '{{price}}', p0 | replace: '{{quantity}}', t0.buy
+      assign f0_money = p0 | money
+      assign f0 = bundle.first_link_text | default: 'Buy once: {{price}}' | escape | replace: '{{price}}', f0_money | replace: '{{quantity}}', t0.buy | replace: '{{unit_price}}', f0_money | replace: '{{saved_percentage}}', '0%' | replace: '{{saved_total}}', ''
+    -%}
+    {%- render 'ob-bundle-firstlink', text: f0 -%}
+  {%- endif -%}
+  {%- render 'ob-bundle-ladder', ladder: bundle.gift_ladder, locked: bundle.ui.locked -%}
+  {%- if summary -%}{%- render 'ob-bundle-summary', bundle: bundle -%}{%- endif -%}
+  {%- capture ship_html -%}{%- if ship_line -%}
+    {%- liquid
+      assign ship_days = bundle.ship_days | default: 5
+      assign secs = ship_days | times: 86400
+      assign wd = 'now' | date: '%u' | plus: 0
+      if wd > 5
+        assign secs = secs | plus: 172800
+      endif
+      assign ship_ts = 'now' | date: '%s' | plus: secs
+      comment
+        No delivery on a weekend: a Saturday or Sunday date moves to the Monday.
+      endcomment
+      assign aw = ship_ts | date: '%u' | plus: 0
+      if aw == 6
+        assign ship_ts = ship_ts | plus: 172800
+      elsif aw == 7
+        assign ship_ts = ship_ts | plus: 86400
+      endif
+    -%}
+    {%- capture ship_date -%}<strong data-ob-shipdate="{{ ship_ts }}">{{ ship_ts | date: '%a, %b %-d' }}</strong>{%- endcapture -%}
+    {%- comment -%} **words** in the text are drawn bold (ship_strong colour). {%- endcomment -%}
+    {%- assign ship_parts = bundle.ship_text | escape | split: '**' -%}
+    {%- capture ship_txt -%}{%- for part in ship_parts -%}{%- if forloop.index0 == 1 or forloop.index0 == 3 or forloop.index0 == 5 -%}<strong>{{ part }}</strong>{%- else -%}{{ part }}{%- endif -%}{%- endfor -%}{%- endcapture -%}
+    {%- capture date_tok -%}{% raw %}{{date}}{% endraw %}{%- endcapture -%}
+    {%- if bundle.ship_text contains date_tok -%}
+      <div class="ob__ship"><i aria-hidden="true"></i><span>{{ ship_txt | replace: date_tok, ship_date }}</span></div>
+    {%- elsif bundle.ship_text != blank and bundle.ship_note == blank and bundle.ship_text contains '**' -%}
+      <div class="ob__ship"><i aria-hidden="true"></i><span>{{ ship_txt }}</span></div>
+    {%- else -%}
+      <div class="ob__ship"><i aria-hidden="true"></i><span>{{ bundle.ship_text | default: 'Order today, ships by' | escape }} {{ ship_date }}{%- if bundle.ship_note != blank -%}. {{ bundle.ship_note | escape }}{%- else -%}. Free shipping.{%- endif -%}</span></div>
+    {%- endif -%}
+  {%- endif -%}{%- endcapture -%}
+  {%- assign ship_below = false -%}
+  {%- if bst.ship_position == 'below' -%}{%- assign ship_below = true -%}{%- endif -%}
+  {%- unless ship_below -%}{{ ship_html }}{%- endunless -%}
+  {%- render 'ob-bundle-cta', assure_1: bundle.assure_1, assure_2: bundle.assure_2 -%}{%- if ship_below -%}{{ ship_html }}{%- endif -%}
+  <dialog class="ob__dialog ob__sgd" data-ob-sgd aria-label="Size guide"><button type="button" class="ob__x" data-ob-close aria-label="Close">×</button><h3>Size guide</h3><div data-ob-sgbody>{{ sg_html }}</div></dialog>
+  <script type="application/json" data-ob-tiers>{{ bundle.tiers | json }}</script>
+  <script type="application/json" data-ob-variants>{{ product.variants | json }}</script>
+  {%- comment -%} Packshots per colour for the item sheet: product images whose alt text names the colour and says
+    "studio" or "packshot" (max 8); a colour without such photos uses every photo naming it. {%- endcomment -%}
+  {%- capture gallery -%}{%- if color_idx >= 0 -%}{%- for cv in product.options_with_values[color_idx].values -%}
+    {%- assign ckey = cv.name | downcase | prepend: ' ' | append: ' ' -%}{%- assign packs = '' -%}{%- assign anys = '' -%}
+    {%- for im in product.images -%}
+      {%- assign alt = im.alt | downcase | replace: ',', ' ' | replace: '.', ' ' | prepend: ' ' | append: ' ' -%}
+      {%- if alt contains ckey -%}
+        {%- assign u = im | image_url: width: 900 | json -%}
+        {%- if alt contains 'studio' or alt contains 'packshot' -%}{%- assign packs = packs | append: '|' | append: u -%}{%- endif -%}
+        {%- assign anys = anys | append: '|' | append: u -%}
+      {%- endif -%}
+    {%- endfor -%}
+    {%- if packs == '' -%}{%- assign packs = anys -%}{%- endif -%}
+    {%- assign plist = packs | remove_first: '|' | split: '|' -%}
+    {{- cv.name | json -}}:[{{- plist | slice: 0, 8 | join: ',' -}}]{%- unless forloop.last -%},{%- endunless -%}
+  {%- endfor -%}{%- endif -%}{%- endcapture -%}
+  <script type="application/json" data-ob-opts>{"color":{{ color_idx }},"size":{{ size_idx }},"names":{{ product.options | json }},"values":[{%- for opt in product.options_with_values -%}{{ opt.values | map: 'name' | json }}{% unless forloop.last %},{% endunless %}{%- endfor -%}],"fallback":{{ product.featured_image | image_url: width: 500 | json }},"gallery":{ {{- gallery -}} }}</script>
+</div>
+<script src="{{ 'ob-bundle.js' | asset_url }}" defer></script>

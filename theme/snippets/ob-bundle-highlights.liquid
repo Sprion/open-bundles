@@ -1,0 +1,12 @@
+{% doc %}
+  Highlights of a bundle bar: a check list (tier field highlights). Shown under the selected bar, or under every bar
+  when the bundle's highlights_mode is "always" (class is-always; each design's CSS hides the others).
+  Colours: bundle style highlight_text, highlight_icon.
+  @param {object} items - The bar's highlights (strings).
+  @param {boolean} [always] - Show even when the bar is not selected.
+{% enddoc %}
+{%- if items.size > 0 -%}
+<span class="ob-hl{% if always %} is-always{% endif %}">
+  {%- for h in items -%}<span class="ob-hl__i"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="m4.5 10.5 3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>{{ h | escape }}</span></span>{%- endfor -%}
+</span>
+{%- endif -%}

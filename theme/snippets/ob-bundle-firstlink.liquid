@@ -1,0 +1,22 @@
+{% doc %}
+  First bar of a editor bundle shown as a text link under the bars (bundle field first_link, text first_link_text,
+  e.g. "Buy once: {{price}} (no savings)"). The bar itself is hidden until picked (class ob-linktier in each design).
+  A shared script selects the first bar of the offer block on click. Colour: bundle style link_color.
+  @param {string} text - Link text, variables already filled.
+{% enddoc %}
+<button type="button" class="ob-firstlink" data-ob-firstlink>{{ text }}</button>
+<script>
+if (!window.obFirstLink) {
+  window.obFirstLink = true;
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-ob-firstlink]');
+    if (!b) return;
+    e.preventDefault();
+    const root = b.closest('[data-ob-block]'), r = root?.querySelector('input[type=radio]');
+    if (!r || r.disabled) return;
+    r.checked = true;
+    r.dispatchEvent(new Event('change', { bubbles: true }));
+    r.closest('label')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+}
+</script>

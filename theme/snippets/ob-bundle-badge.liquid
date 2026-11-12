@@ -1,0 +1,8 @@
+{% doc %}
+  Badge of a bundle bar (tier field badge; look: bundle style badge_style, per bar badge_style / badge_color /
+  badge_bg / badge_size). Component of ob-bundle-bar.
+  @param {string} text - Badge text, variables filled (blank = no badge).
+  @param {string} style - floating (over the top border), inline (next to the title) or ribbon (strip on top).
+  @param {string} [css] - Inline style of this bar's badge.
+{% enddoc %}
+{%- if text != blank -%}<span class="ob__badge ob__badge--{{ style }}" data-ob-badge style="{{ css }}">{{ text }}</span>{%- endif -%}

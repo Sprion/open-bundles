@@ -1,0 +1,67 @@
+{% doc %}
+  Bundle offer of a product page: the one snippet you render in your theme.
+    {% render 'ob-offer', product: product, section: section %}
+  Put it where the product form (or its Add to cart button) is. The bundle draws its own variant pickers and its own
+  Add to cart button, so hide the theme's ones on products that have a bundle (README, step 3).
+
+  Reads the shop metafield open_bundles.config written by the editor:
+    bundles:  { "<bundle id>": { tiers, design, style, ... } }
+    products: { "gid://shopify/Product/<id>": { "bundle": "<default bundle id>", "previews": [ids], "tests": { "<test>": { "a": "<bundle>", "b": "<bundle>" } } } }
+    tests:    { "<test>": { "a": 50, "b": 50 } }   (traffic split of running tests)
+    collector: "https://..."                        (optional stats URL, see README "Stats")
+  A/B test: every version's bundle is rendered, CSS keeps only the visitor's one (class obab-<test>-<version> set by
+  ob-ab before the versions are parsed: no flicker). The discount function charges the same version (cart attribute _obab).
+  Preview: ?ob=<bundle id> shows a bundle listed in products[..].previews instead of the normal offer (looks only).
+  @param {product} product - Product.
+  @param {section} [section] - Product section (its id is sent with variant:changed for the theme gallery).
+  @param {string} [bundle_id] - Force a bundle instead of the product's own one.
+  @param {variant} [current_variant] - Initial variant.
+{% enddoc %}
+{%- liquid
+  assign pkey = 'gid://shopify/Product/' | append: product.id
+  assign cfg = shop.metafields.open_bundles.config.value
+  assign pcfg = cfg.products[pkey]
+  assign def_bundle = bundle_id | default: pcfg.bundle
+  assign has_test = false
+  for pair in pcfg.tests
+    assign has_test = true
+    assign tid = pair[0]
+    assign versions = pair[1]
+    break
+  endfor
+-%}
+{%- if has_test or pcfg.previews.size > 0 -%}{%- render 'ob-ab', cfg: cfg, test_id: tid, versions: versions -%}{%- endif -%}
+<div class="ob-main">
+{%- if has_test -%}
+  <style>
+    {%- for v in versions -%}
+      {%- if v[0] != 'a' -%}
+        html:not(.obab-{{ tid }}-{{ v[0] }}) .ob-{{ tid }}-{{ v[0] }}, html.obab-{{ tid }}-{{ v[0] }} .ob-{{ tid }}-a { display:none; }
+      {%- endif -%}
+    {%- endfor -%}
+  </style>
+  {%- for v in versions -%}
+    <div class="ob-{{ tid }}-{{ v[0] }}" data-ob-version="{{ v[0] }}">
+      {%- render 'ob-bundle', product: product, section: section, current_variant: current_variant, bundle_id: v[1], uid: v[0] -%}
+    </div>
+  {%- endfor -%}
+{%- elsif def_bundle != blank and cfg.bundles[def_bundle] -%}
+  <div data-ob-version="default">
+    {%- render 'ob-bundle', product: product, section: section, current_variant: current_variant, bundle_id: def_bundle, uid: 'd' -%}
+  </div>
+{%- endif -%}
+</div>
+{%- if pcfg.previews.size > 0 -%}
+  <style>
+    .ob-pv { display:none; } html.ob-pv-on .ob-main { display:none; }
+    {%- for pv in pcfg.previews %} html.ob-pv-{{ pv }} .ob-pv-{{ pv }} { display:block; }{% endfor %}
+  </style>
+  {%- for pv in pcfg.previews -%}
+    {%- if cfg.bundles[pv] -%}
+      <div class="ob-pv ob-pv-{{ pv }}" data-ob-version="pv">
+        {%- assign pv_uid = 'pv' | append: forloop.index -%}
+        {%- render 'ob-bundle', product: product, section: section, current_variant: current_variant, bundle_id: pv, uid: pv_uid -%}
+      </div>
+    {%- endif -%}
+  {%- endfor -%}
+{%- endif -%}

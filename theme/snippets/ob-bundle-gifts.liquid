@@ -1,0 +1,27 @@
+{% doc %}
+  Gift strip of a bundle bar (tier field gifts). Gifts that come from the Gifts unlocked panel (flag ladder) are
+  listed only when the panel's in_bars is set. A "choose" gift gets a variant menu. Component of ob-bundle-bar.
+  @param {object} gifts - The bar's gifts.
+  @param {boolean} [in_bars] - Also list the Gifts unlocked panel's gifts here.
+  @param {string} [look] - Bundle style gift_style: strip (coloured strip, default), line (separator line, truck icon on shipping), box (white card with a title, struck value and FREE on the right) or none (not listed, still added to the cart).
+  @param {string} [title] - Title of the box look ("Limited Time Gifts").
+{% enddoc %}
+{%- assign n = 0 -%}
+{%- for g in gifts -%}{%- if g.in_bar == false -%}{%- continue -%}{%- endif -%}{%- unless g.ladder and in_bars != true -%}{%- assign n = n | plus: 1 -%}{%- endunless -%}{%- endfor -%}
+{%- if n > 0 -%}
+<span class="ob__gifts">{%- if look == 'box' and title != blank -%}<span class="ob__gtitle">{{ title | escape }}</span>{%- endif -%}
+  {%- for g in gifts -%}
+    {%- if g.ladder and in_bars != true -%}{%- continue -%}{%- endif -%}
+    {%- if g.in_bar == false -%}{%- continue -%}{%- endif -%}
+    <span class="ob__gift">
+      {%- if g.image == blank and g.type == 'shipping' and look == 'line' -%}<svg class="ob__gicon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 6h11v9H2zM13 9h4l3 3v3h-7"/><circle cx="6" cy="17" r="1.6"/><circle cx="17" cy="17" r="1.6"/></svg>{%- endif -%}
+      {%- if g.image != blank -%}<img src="{{ g.image | append: '&width=120' }}" alt="" width="{{ g.image_size }}" height="{{ g.image_size }}" loading="lazy" style="width:{{ g.image_size }}px;height:{{ g.image_size }}px">{%- endif -%}
+      <span class="ob__gtext">{{ g.text | escape }}{%- if g.note != blank -%}<small>{{ g.note | escape }}</small>{%- endif -%}</span>
+      {%- if g.choose -%}{%- assign gp = all_products[g.handle] -%}<select class="ob__gsel" data-gift-select aria-label="{{ g.title | escape }}">{%- for v in gp.variants -%}{%- if v.available -%}<option value="{{ v.id }}"{% if v.id == g.variant %} selected{% endif %}>{{ v.title | escape }}</option>{%- endif -%}{%- endfor -%}</select>{%- endif -%}
+      {%- if look == 'box' -%}{%- assign gv = g.price | default: g.value | default: 0 -%}<span class="ob__giftp">{%- if gv > 0 -%}<s>{{ gv | times: 100 | round | money_without_trailing_zeros }}</s>{%- endif -%}<b>{{ free | default: 'FREE' | escape }}</b></span>
+      {%- elsif g.show_price and g.price > 0 -%}<span class="ob__giftp"><s>{{ g.price | times: 100 | round | money }}</s> <b>{{ free | default: 'FREE' | escape }}</b></span>{%- endif -%}
+      {%- if forloop.last and foot != blank -%}<span class="ob__badge ob__badge--foot" data-ob-badge style="{{ foot_css }}">{{ foot }}</span>{%- endif -%}
+    </span>
+  {%- endfor -%}
+</span>
+{%- endif -%}
