@@ -14,9 +14,8 @@ What you get:
 
 Only the offer block is in scope: no landing pages, no pop-ups.
 
-> **Using an AI assistant?** Give it this repository link and say what you want, for example
-> "install this on my store" or "make a bundle that looks like the one on https://some-store.com/products/x".
-> The section [For AI assistants](#for-ai-assistants) tells it how.
+> **Installing takes one prompt** to your AI assistant: see [Install on your store](#install-on-your-store).
+> Then ask it things like *"make a bundle that looks like the one on https://some-store.com/products/x"*.
 
 ## How I use it
 
@@ -40,71 +39,28 @@ Open http://127.0.0.1:8787. Until you connect a store the editor runs in **demo 
 
 ## Install on your store
 
-You need Python 3.10+, Node 20+ and the [Shopify CLI](https://shopify.dev/docs/api/shopify-cli). The CLI signs you in
-to your Shopify account in the browser the first time you run it: you log in yourself, nothing to paste anywhere.
+Paste this into Claude Code (or any AI assistant that can run commands on your computer):
 
-### 1. Create the app and deploy the discount function
-
-```bash
-shopify app init          # sign in, then choose "Build an extension-only app"
+```text
+Install Open Bundles on my Shopify store by following https://github.com/Sprion/open-bundles/blob/main/INSTALL.md
 ```
 
-Copy the `function/` folder of this repository into the new app as `extensions/open-bundles/`, then in the app's
-`shopify.app.toml` set the scopes:
+The AI does the rest: the tools, the Shopify app and its discount function, the connection, and the block on a copy of
+your theme. You only:
 
-```toml
-[access_scopes]
-scopes = "read_products,read_orders,read_files,write_discounts"
-```
+1. give your store's myshopify.com domain,
+2. sign in to Shopify in your browser when it opens,
+3. click **Install app** once in the Shopify Dev Dashboard,
+4. look at the preview and say when to go live.
 
-```bash
-shopify app deploy
-```
+You never paste a key: the app keys go from the Shopify CLI straight to a settings file outside the project folder
+(`~/.open-bundles/`), and nothing prints them. [INSTALL.md](INSTALL.md) is plain steps, so you can follow it by hand too.
 
-Install the app on your store (link shown in the Dev Dashboard).
-
-### 2. Connect the editor
-
-Run `python editor/server.py`, open http://127.0.0.1:8787 and click **Connect to store**. Type your store's
-myshopify.com domain and your app's client ID and secret (Dev Dashboard > your app > Settings), or an Admin API token,
-then **Connect**: the editor tests the keys and lists any missing app scope.
+Then make bundles in the editor (`python editor/server.py`): **+ Create bundle**, pick a style, choose the product,
+edit, **Save**, and pick the product page under "Shown on". Changes go live at once (they are stored in a shop
+metafield, no theme push). Store settings can be changed later with **Store settings** at the top right.
 
 ![Connect to store](docs/screenshots/connect-to-store.webp)
-
-The keys stay on your computer, in `~/.open-bundles/settings.json` (outside the project folder, so they never end up
-in git), and the editor never shows them again. Type them yourself: you never have to give them to anyone, AI
-assistants included.
-
-Then click **Create the bundle discount** in the same window, once.
-
-### 3. Add the block to your theme
-
-Copy `theme/snippets/*` and `theme/assets/ob-bundle.js` into your theme, then render the block where the product form is
-(main product section):
-
-```liquid
-{% render 'ob-offer', product: product, section: section %}
-```
-
-The block brings its own variant pickers and Add to cart button. On products that have a bundle, hide the theme's ones:
-
-```liquid
-{%- liquid
-  assign ob_key = 'gid://shopify/Product/' | append: product.id
-  assign ob_has_bundle = false
-  if shop.metafields.open_bundles.config.value.products[ob_key] != blank
-    assign ob_has_bundle = true
-  endif
--%}
-{% unless ob_has_bundle %} ...your theme's variant picker and buy buttons... {% endunless %}
-```
-
-Test on an unpublished copy of your theme first (put its ID under "Preview links" in the Connect to store window so the editor's "Open" links use it).
-
-### 4. Make a bundle
-
-`python editor/server.py`, **+ Create bundle**, pick a style, choose the product, edit, **Save**, then pick the product
-page under "Shown on". Changes go live at once (they are stored in a shop metafield, no theme push).
 
 ## A/B tests
 
@@ -150,7 +106,9 @@ Without a collector everything works; the results show orders and revenue only.
 | `editor/render.py` | Draws the preview with the theme's own snippets (python-liquid) |
 | `editor/app/` | Editor page (plain JS modules, no build) |
 | `theme/` | Storefront snippets (`ob-offer` is the entry) and `ob-bundle.js` |
-| `function/` | Discount function (JS), tests: `npm install && npx vitest run` |
+| `app/` | Shopify app carrying the discount function (`app/extensions/open-bundles`), tests: `npm test` in `app/` |
+| `INSTALL.md` | Install steps, written for an AI assistant |
+| `scripts/connect.py` | Connects the editor to your store with the deployed app's keys, without printing them |
 | `data/templates.json` | Starting styles of "Choose a style" |
 | `data/bundles.json`, `data/tests.json` | Your bundles and tests (created on first save) |
 | `scripts/capture_looks.py` | Redraws the style thumbnails in `media/looks/` |
@@ -161,13 +119,11 @@ Without a collector everything works; the results show orders and revenue only.
 Read this section before changing anything.
 
 **Keys are off limits.** Never ask the user for their app secret, token or stats key, never read, print or edit
-`~/.open-bundles/` or any file holding them, and never put keys in commands or files. The user types them in the
-editor's **Connect to store** window themselves. The Shopify CLI login (`shopify app init`, `shopify app deploy`) also
-happens in the user's browser: run the command and let them sign in.
+`~/.open-bundles/` or any file holding them, never run `shopify app env show` yourself, and never put keys in commands
+or files. `scripts/connect.py` handles them.
 
-**Installing for a user:** follow "Install on your store" step by step. Running the CLI steps and copying the theme
-files is your part; signing in and the Connect window are theirs. Test theme changes on an unpublished theme; publish
-nothing live without the user's yes.
+**Installing for a user:** follow [INSTALL.md](INSTALL.md). Test theme changes on an unpublished copy; publish nothing
+live without the user's yes.
 
 **Recreating a bundle from a URL:**
 
@@ -185,7 +141,7 @@ nothing live without the user's yes.
    `_clean_bundle` together, keep the editor fields (`editor/app/bundle-editor/`) in sync, and run the function tests.
 
 **Prices:** the discount function charges from the same config the block reads; after touching pricing logic run
-`npx vitest run` in `function/`.
+`npm test` in `app/`.
 
 ## License
 

@@ -106,8 +106,9 @@ def _request(url, data, headers):
         with urllib.request.urlopen(req, timeout=60) as r:
             return json.loads(r.read().decode("utf-8"))
     except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", "replace")[:300]
-        raise ShopifyError(f"Shopify HTTP {e.code}: {body}") from None
+        body = e.read().decode("utf-8", "replace")
+        title = re.search(r"<title>(.*?)</title>", body, re.S)
+        raise ShopifyError(f"Shopify HTTP {e.code}: {(title.group(1) if title else body).strip()[:300]}") from None
 
 
 def token():
