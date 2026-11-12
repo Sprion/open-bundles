@@ -1,0 +1,39 @@
+query DeliveryInput {
+  cart {
+    ab: attribute(key: "_obab") {
+      value
+    }
+    bundleCart: attribute(key: "_ob") {
+      value
+    }
+    lines {
+      id
+      quantity
+      cost {
+        amountPerQuantity {
+          amount
+        }
+      }
+      merchandise {
+        __typename
+        ... on ProductVariant {
+          id
+          product {
+            id
+          }
+        }
+      }
+    }
+    deliveryGroups {
+      id
+    }
+  }
+  shop {
+    metafield(namespace: "open_bundles", key: "config") {
+      jsonValue
+    }
+  }
+  discount {
+    discountClasses
+  }
+}
