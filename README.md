@@ -51,7 +51,7 @@ your theme. You only:
 1. give your store's myshopify.com domain,
 2. sign in to Shopify in your browser when it opens,
 3. on a live store, click **Install app** once in the Shopify Dev Dashboard (dev stores need nothing),
-4. choose: try it on a copy of your theme first (then say when to go live), or add it straight to your live theme.
+4. look at the previews on a copy of your theme, and say "go live" when you are happy.
 
 You never paste a key: the app keys go from the Shopify CLI straight to a settings file outside the project folder
 (`~/.open-bundles/`), and nothing prints them. [INSTALL.md](INSTALL.md) is plain steps, so you can follow it by hand too.
@@ -61,6 +61,20 @@ edit, **Save**, and pick the product page under "Shown on". Changes go live at o
 metafield, no theme push). Store settings can be changed later with **Store settings** at the top right.
 
 ![Connect to store](docs/screenshots/connect-to-store.webp)
+
+## Safety
+
+Built for stores where a broken product page costs real money:
+
+- **Nothing goes live unseen.** The first install goes on a copy of your theme; the live theme changes only after you
+  have checked the preview links and said yes.
+- **Small footprint.** New files only (`ob-*`), plus a few lines in the product section. Products without a bundle,
+  the home page, collections and the cart stay exactly as they were.
+- **The editor asks first.** Putting a bundle on a product page, saving a bundle that is live, or starting a test opens
+  a window that says what visitors will see, with a store preview button.
+- **Checkout matches the page.** The discount only applies to carts built by the bundle block, at the prices it shows.
+- **Easy undo.** "Shown on: No product page" puts a product back to normal at once; [INSTALL.md](INSTALL.md#undo) lists
+  the rest.
 
 ## A/B tests
 
