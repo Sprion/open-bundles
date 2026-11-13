@@ -410,7 +410,8 @@
         if ('skipCart' in ds) { location.assign(base + 'checkout'); return true; }
         if (pb?.open) pb.close();
         if (typeof publish === 'function' && typeof PUB_SUB_EVENTS !== 'undefined') publish(PUB_SUB_EVENTS.cartUpdate, { source: 'ob-bundle', cartData: data });
-        if (cart?.renderContents && sections.every((id) => data.sections?.[id])) { try { cart.renderContents(data); } catch { location.assign(cartUrl); } }
+        cart?.classList.remove('is-empty'); // like the theme's own form: an empty drawer has no item list to focus
+        if (cart?.renderContents && sections.every((id) => data.sections?.[id])) { try { cart.renderContents({ ...data, key: data.key || data.items?.[0]?.key }); } catch { location.assign(cartUrl); } }
         else location.assign(cartUrl);
         return true;
       } catch (err) {
