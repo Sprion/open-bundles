@@ -19,8 +19,8 @@ export async function liveUses(id) {
   return { pages, tests, any: pages.length + tests.length > 0 };
 }
 
-// confirmLive({ title, lines: [...], action: "Make it live", preview: async () => url }) -> true / false
-export async function confirmLive({ title, lines, action = "Make it live", preview }) {
+// confirmLive({ title, lines: [...], action: "Confirm", preview: async () => url }) -> true / false
+export async function confirmLive({ title, lines, action = "Confirm", preview }) {
   if (await isDemo()) return true;
   return new Promise((resolve) => {
     const dlg = document.createElement("dialog");
@@ -30,7 +30,7 @@ export async function confirmLive({ title, lines, action = "Make it live", previ
       <ul class="lv__list">${lines.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
       <p class="cx__msg" data-lv-msg></p>
       <div class="cx__foot">
-        ${preview ? `<button type="button" class="xbtn" data-lv-preview>Preview on the store</button>` : ""}
+        ${preview ? `<button type="button" class="xbtn" data-lv-preview>Preview</button>` : ""}
         <span class="cx__spacer"></span>
         <button type="button" class="xbtn xbtn--ghost" data-lv-cancel>Cancel</button>
         <button type="button" class="xbtn xbtn--primary" data-lv-ok>${esc(action)}</button>
@@ -47,7 +47,7 @@ export async function confirmLive({ title, lines, action = "Make it live", previ
       try {
         const url = await preview();
         if (tab) tab.location = url; else window.open(url, "_blank");
-        m.textContent = "Preview opened in a new tab. Visitors do not see it.";
+        m.textContent = "Preview opened in a new tab.";
       } catch (err) { tab?.close(); m.textContent = err.message; m.classList.add("cx__msg--bad"); }
     });
     dlg.showModal();

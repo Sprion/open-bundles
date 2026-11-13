@@ -237,10 +237,11 @@ export function wire(f, { product, options, productOf, optionsFor, onClose, onSa
     const uses = await liveUses(b.id).catch(() => ({ any: false }));
     if (uses.any) {
       const ok = await confirmLive({
-        title: "Save changes to a live bundle?",
-        lines: [...uses.pages.map((p) => `Visitors of "${p}" see the changes right away.`),
-                ...uses.tests.map((t) => `It is a version of the running A/B test "${t}".`)],
-        action: "Save and go live",
+        title: "This offer is on your store",
+        lines: [...uses.pages.map((p) => `Shoppers on ${p} will see your changes as soon as you save.`),
+                ...uses.tests.map((t) => `It is also a version of the running A/B test "${t}".`),
+                "Check it with Preview first: only you can see the preview."],
+        action: "Save changes",
         preview: async () => (await send("POST", "/draft", { handle: f.elements.product.value, bundle: b })).url,
       });
       if (!ok) return;

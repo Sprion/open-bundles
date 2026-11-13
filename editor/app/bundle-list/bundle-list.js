@@ -152,12 +152,13 @@ export async function mount(root) {
       const name = b.title || id;
       const replaced = handle && Object.values(state.products || {}).find((p) => p.handle === handle && p.bundle && p.bundle !== id);
       const lines = [];
-      if (handle) lines.push(`Every visitor of "${title(handle)}" sees "${name}" right away, and checkout charges its prices.`);
-      if (replaced) lines.push(`It replaces the bundle "${state.bundles[replaced.bundle]?.title || replaced.bundle}" on that page.`);
-      for (const h of before) if (h !== handle) lines.push(`"${title(h)}" goes back to its usual buy buttons.`);
+      if (handle) lines.push(`Shoppers on ${title(handle)} will see this offer as soon as you confirm, and pay its prices at checkout.`);
+      if (replaced) lines.push(`It replaces "${state.bundles[replaced.bundle]?.title || replaced.bundle}", the offer currently on that page.`);
+      for (const h of before) if (h !== handle) lines.push(`${title(h)} goes back to its usual Add to cart button.`);
+      lines.push("Check it with Preview first: only you can see the preview.");
       const ok = await confirmLive({
-        title: handle ? "Put this bundle on your store?" : "Take this bundle off your store?", lines,
-        action: handle ? "Make it live" : "Take it off",
+        title: handle ? `Show "${name}" on ${title(handle)}?` : `Remove "${name}" from ${title(before[0])}?`, lines,
+        action: handle ? "Show on product page" : "Remove offer",
         preview: handle ? async () => (await send("POST", "/preview", { handle, bundle: id, on: true })).url : null,
       });
       if (!ok) { e.target.value = before[0] || ""; return; }

@@ -141,13 +141,13 @@ export function wireTest(el, t, reload, onEdit) {
     const on = t.status !== "running", page = t.pages?.[0]?.handle || t.handle;
     const ok = await confirmLive(on ? {
       title: "Start this A/B test?",
-      lines: [`Visitors of "${page}" are split between ${t.versions.map((v) => v.key.toUpperCase()).join(", ")} right away, and each one is charged the version they see.`,
-              "Check every version first with its Edit > Open preview."],
-      action: "Start the test",
+      lines: [`Shoppers on ${page} will be split between versions ${t.versions.map((v) => v.key.toUpperCase()).join(", ")} as soon as you confirm. Each one pays the prices of the version they see.`,
+              "Check each version first: Edit, then Open, shows a preview only you can see."],
+      action: "Start test",
     } : {
       title: "Pause this A/B test?",
-      lines: [`Every visitor of "${page}" sees version A again right away.`],
-      action: "Pause the test",
+      lines: [`Shoppers on ${page} will all see version A again as soon as you confirm.`],
+      action: "Pause test",
     });
     if (ok) run("POST", `${id}/status`, { on });
   });
