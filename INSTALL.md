@@ -19,6 +19,7 @@ change them.
   after the previews) lets you change the live theme. Ask again for every later live change, including bundles you
   save or assign through the editor API once the live theme shows bundles. Some stores make thousands a day: a broken
   product page costs real money.
+- Run every command from the clone's root folder unless a step says otherwise.
 - Run long or interactive commands where the user can see them.
 - Stop and tell the user when a step fails; do not work around it on the live store.
 - Keep each theme file's line endings as they are (many themes use CRLF): edit in place, do not rewrite whole files.
@@ -30,7 +31,8 @@ Ask: *"What is your store's myshopify.com domain? (Shopify admin > Settings > Do
 ## 2. Tools and code
 
 Needed: git, Python 3.10+, Node 20+, Shopify CLI. Check each (`python --version`, `node --version`, `shopify version`).
-Install what is missing (`npm install -g @shopify/cli` for the CLI), telling the user what you install.
+Install what is missing (`npm install -g @shopify/cli` for the CLI), telling the user what you install. Last tested
+with Shopify CLI 4.9, Node 26 and Python 3.14.
 
 ```bash
 git clone https://github.com/Sprion/open-bundles.git
@@ -38,6 +40,8 @@ cd open-bundles
 pip install -r editor/requirements.txt
 cd app && npm install && cd ..
 ```
+
+Recent npm versions may say they skipped install scripts (esbuild, core-js): that is fine, step 4 still builds.
 
 Steps 3 and 4 change two tracked files in this clone (`app/shopify.app.toml` gets the app's client ID,
 `app/extensions/open-bundles/shopify.extension.toml` a `uid`). That is expected: they are this user's settings; do not
@@ -51,7 +55,8 @@ shopify organization list --json
 
 If the CLI is not signed in yet, this opens the browser for the user to sign in: tell them before you run it. Pick the
 organization that owns `STORE` (`shopify store list --organization-id ORG_ID --json` lists its stores). Then create the
-app in a new temporary folder **outside** the clone (for example next to it), only to get its client ID:
+app in a new, empty temporary folder **outside** the clone (create it first, for example next to the clone), only to
+get its client ID:
 
 ```bash
 shopify app init --name "Open Bundles" --organization-id ORG_ID --template none --path TEMP_DIR --no-input
@@ -78,9 +83,20 @@ and never show that file:
 shopify app dev --path app --store STORE --no-input > LOG_FILE 2>&1 &
 ```
 
-Wait until the log contains "Access scopes auto-granted" (about 30 seconds), then stop the process and its children
-(Windows: `taskkill /T /F /PID <pid>`; macOS and Linux: `kill` the process group), and delete the log. The released
-version from step 4 stays installed.
+Check the log every few seconds for "Access scopes auto-granted" (it takes about 30 seconds). Then stop the process and
+its children, and delete the log:
+
+- macOS and Linux: `kill` the process group.
+- Windows: `taskkill /T /F /PID <pid>` with the Windows PID. In Git Bash `$!` is not that PID: read it from
+  `/proc/$!/winpid`, and write the flags `//T //F //PID`.
+
+If the line has not appeared after 2 minutes, stop the process and show the user the log lines that contain "error",
+none of the others (the log holds a `key=`). Then turn off the development preview `app dev` left on the store, so the
+store runs the version released in step 4:
+
+```bash
+shopify app dev clean --path app --store STORE --no-input
+```
 
 **Live store**: one click from the user. *"Open dev.shopify.com, go to Apps > Open Bundles, click Install app,
 choose your store and confirm."* The store must belong to the organization picked in step 3.
@@ -102,6 +118,8 @@ Start the editor and keep it running (in the background):
 python editor/server.py
 ```
 
+It prints nothing; it is ready when `GET http://127.0.0.1:8787/api/status` answers.
+
 Ask the user which product gets the first bundle, then either:
 
 - tell them: *"Open http://127.0.0.1:8787, click + Create bundle, pick a style, choose your product, adjust the texts
@@ -109,9 +127,10 @@ Ask the user which product gets the first bundle, then either:
 - if they ask you to do it, use the API (every write needs the header `X-editor: 1`):
   - `GET http://127.0.0.1:8787/api/bundles`: `productList` (the store's products), `templates` (starting styles, an
     object keyed by style id; each has `name` and `bundle`).
-  - Start from `templates[STYLE].bundle`, set `title` (the name shown in the editor) and the product's `handle`, and
-    `POST /api/bundles/BUNDLE_ID` with that object (id: lowercase letters, digits and dashes). Unknown fields are
-    dropped silently; every accepted field is in `_clean_bundle` in `editor/bundles.py`.
+  - Start from `templates[STYLE].bundle`, set `title` (the name shown in the editor) and `product` (the product's
+    handle: the field is named `product`, not `handle`), and `POST /api/bundles/BUNDLE_ID` with that object (id:
+    lowercase letters, digits and dashes). Unknown fields are dropped silently; every accepted field is in
+    `_clean_bundle` in `editor/bundles.py`.
   - `POST /api/bundles/assign` with `{"handle": "PRODUCT_HANDLE", "bundle": "BUNDLE_ID"}`.
 
 The starting styles carry example texts and offers: a delivery promise ("Ships today, delivered in 3 to 6 days"),
@@ -119,8 +138,9 @@ The starting styles carry example texts and offers: a delivery promise ("Ships t
 true for their store and what they can afford; `gift-cards` and `rows-free-items` hold sample gifts or pictures that
 must be replaced or removed before they save.
 
-Saving and assigning write the store's settings at once. Until the theme draws the block (step 8), visitors see
-nothing of it.
+Saving and assigning write the store's settings at once. On a first install the theme does not draw the block yet
+(step 8), so visitors see nothing of it. If the live theme already has the `ob-offer` render (Open Bundles was installed
+before), an assign is a live change: ask the user first.
 
 ## 8. Add the block to a copy of the theme
 
@@ -152,30 +172,48 @@ shopify theme pull --store STORE --theme TARGET_ID --path .theme-work --force --
      picker, the quantity input and the Add to cart form. If you cannot tell which code draws them, stop and tell the
      user instead of guessing.
    Leave other places that sell a product (quick add on collections, featured product sections) as they are: they keep
-   selling one item at its normal price.
-3. Before those parts (in each file that needs it; `product` is `closest.product` in theme blocks):
+   selling one item at its normal price. Some themes (Dawn) build their quick add window from the product page itself:
+   there it shows the bundle block, which works the same (tested on Dawn).
+3. Before those parts, in each file that needs it (in a theme block, at the very top of the file, before the theme's
+   own Liquid):
 
    ```liquid
    {%- liquid
-     assign ob_key = 'gid://shopify/Product/' | append: product.id
-     assign ob_active = shop.metafields.open_bundles.config.value.products[ob_key].active
+     assign ob_product = closest.product
+     if ob_product == blank
+       assign ob_product = product
+     endif
+     assign ob_main = false
+     assign ob_active = false
+     if request.page_type == 'product' and ob_product.id == product.id
+       unless section.id contains 'quick-add'
+         assign ob_main = true
+         assign ob_key = 'gid://shopify/Product/' | append: product.id
+         assign ob_active = shop.metafields.open_bundles.config.value.products[ob_key].active
+       endunless
+     endif
    -%}
    ```
 
-   `active` is true only on products that show an offer (a bundle or a running A/B test). If the app is removed or its
-   settings deleted, it is empty and the theme's own buttons come back.
+   `ob_main` is true only where the product page draws its own product: not in quick add, not in a featured product
+   section showing another product. Horizon's quick add renders the same `buy-buttons` and `variant-picker` blocks
+   from `sections/section-rendering-quick-add.liquid`; the `quick-add` test keeps it as it was. If the theme's quick add
+   section has another name, use that. `ob_active` is true only on products that show an offer (a bundle or a running
+   A/B test). If the app is removed or its settings deleted, it is empty and the theme's own buttons come back.
 4. Edit:
    - buy buttons: render the block, then keep the theme's buttons for products without an offer:
 
      ```liquid
-     {%- render 'ob-offer', product: product, section: section -%}
+     {%- if ob_main -%}{%- render 'ob-offer', product: product, section: section -%}{%- endif -%}
      {%- unless ob_active -%}
        ...the theme's buy buttons, unchanged...
      {%- endunless -%}
      ```
 
      The block draws nothing on products without an offer (on those it only holds bundle previews, hidden unless the
-     page is opened with `?ob=`). In a theme block, wrap the whole markup before `{% schema %}`.
+     page is opened with `?ob=`). In a theme block, the `unless` wraps everything between the lines above and
+     `{% schema %}`, the theme's own Liquid and style renders included: none of it is needed when the bundle block
+     shows.
    - variant picker and quantity: wrap each in `{%- unless ob_active -%}...{%- endunless -%}`.
 5. Push only the files you changed, to the copy (quote the pattern so the shell does not expand it):
 
@@ -185,16 +223,33 @@ shopify theme pull --store STORE --theme TARGET_ID --path .theme-work --force --
    ```
 
    One `--only` per changed theme file. The second command makes the editor's previews open the copy.
-6. Check it yourself before sending anything to the user, in a browser you drive (Playwright works). Open every page
-   with `?preview_theme_id=THEME_ID` in the URL; the storefront password, if any, comes from the user, and logging in
-   many times in a row can trigger bot protection, so keep one browser session.
-   - The product with the bundle (`TARGET_ID`): the block shows and the theme's variant picker, quantity and Add to cart
-     do not; clicking each offer updates the button text and price (the first offer may show as a "Buy once" link
-     under the others); Add to cart puts the offer's items in the cart (`/cart.js`: item count, `total_price` at the
-     bundle price); no new JavaScript errors compared with the live theme. Empty the cart (`/cart/clear.js`) between
-     tries.
-   - Pages without an offer (home, a collection, two other products, the cart): the same text with
-     `?preview_theme_id=LIVE_ID` and with `?preview_theme_id=TARGET_ID`.
+6. Check it yourself before sending anything to the user, in a browser you drive (Playwright works). Do not log in to
+   the storefront password page again and again: a few logins trigger Shopify's bot protection for a long time.
+   Serve both themes locally through the Shopify CLI instead; the browser then needs no storefront login, and nothing
+   is uploaded to the live theme:
+
+   ```bash
+   shopify theme dev --store STORE --theme TARGET_ID --path .theme-work --nodelete --live-reload off --port 9292 --no-input
+   mkdir .theme-live-check
+   shopify theme pull --store STORE --theme LIVE_ID --path .theme-live-check --force --no-input
+   shopify theme dev --store STORE --path .theme-live-check --live-reload off --port 9293 --no-input
+   ```
+
+   Run both `theme dev` commands in the background. If the store has a storefront password, add
+   `--store-password PASSWORD` to them (the password comes from the user; never write it into a file). Port 9292 is the
+   copy; 9293 is a hidden development copy of the live theme. **Never pass `--theme LIVE_ID` to `theme dev`**: it
+   would upload files to the live theme.
+   - The product with the bundle, on 9292: the block shows and the theme's variant picker, quantity and Add to cart
+     do not. Click each offer (the first one may show as a "Buy once" link under the others): the button text and
+     price change. Add to cart, then read `/cart.js`: `item_count`, and `total_price` at the bundle price. Empty the
+     cart (`POST /cart/clear.js`) between tries.
+   - JavaScript: collect `pageerror` events on both ports; the copy must have none the live theme does not have.
+     Failed loads of shop.app, menus or analytics show on both and do not count.
+   - Pages without an offer (home, a collection, two other products, the cart): the text of `main` is the same on 9292
+     and 9293.
+   - Quick add from a collection, on the product with the bundle: it opens and adds to the cart as before (or, if the
+     theme builds it from the product page, shows the bundle block and adds at the bundle price).
+   Stop both `theme dev` processes afterwards.
    Fix and push again until all of it holds.
 
 ## 9. Preview, then go live
@@ -206,7 +261,8 @@ Send the user these links (all on the copy, visitors see nothing) and say what e
   price.
 - The same link for a product without a bundle, the home page and a collection: exactly as before.
 
-Dev stores are password protected: the password is in the admin (Online Store > Preferences).
+Dev stores are password protected: the password is in the admin (Online Store > Preferences). A bundle preview opened
+with `?ob=` shows the bundle block above the theme's usual buttons: that is normal for a preview.
 
 Fix whatever the user reports, push to the copy again, send the links again. Only when the user says yes (for example
 "go live"), put the same change on the live theme:
@@ -228,8 +284,8 @@ change visitors would see (a bundle put on a product page, a live bundle edited,
 
 - One product: in the editor, set its bundle's "Shown on" to "No product page". The page is back to normal at once.
 - Every bundle: Shopify admin > Discounts, turn off "Open Bundles", and set every bundle to "No product page".
-- The theme: remove the `ob-offer` render and the `ob_active` lines (or restore the files from the theme's version
-  history). Products without an offer never showed anything, so nothing else changes.
+- The theme: remove the `ob-offer` render, the `ob_` Liquid lines and the `unless ob_active` wrappers (or restore the
+  files from the theme's version history). Products without an offer never showed anything, so nothing else changes.
 
 ## Without an AI
 
