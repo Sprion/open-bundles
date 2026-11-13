@@ -1,5 +1,5 @@
 # Shopify app that carries the bundle discount function (app/extensions/open-bundles).
-# client_id is filled in by `shopify app config link`, which creates the app in your Shopify organization.
+# client_id: the ID of your app (INSTALL.md, step 3).
 client_id = ""
 name = "Open Bundles"
 application_url = "https://shopify.dev/apps/default-app-home"

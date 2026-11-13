@@ -1,12 +1,13 @@
 {% doc %}
   Bundle offer of a product page: the one snippet you render in your theme.
     {% render 'ob-offer', product: product, section: section %}
-  Put it where the product form (or its Add to cart button) is. The bundle draws its own variant pickers and its own
-  Add to cart button, so hide the theme's ones on products that have a bundle (README, step 3).
+  Put it where the theme's buy buttons are, on every product page: it draws nothing on products without an offer.
+  The bundle brings its own variant pickers and Add to cart button, so the theme hides its own ones only when
+  products[<product gid>].active is true (INSTALL.md, step 7).
 
   Reads the shop metafield open_bundles.config written by the editor:
     bundles:  { "<bundle id>": { tiers, design, style, ... } }
-    products: { "gid://shopify/Product/<id>": { "bundle": "<default bundle id>", "previews": [ids], "tests": { "<test>": { "a": "<bundle>", "b": "<bundle>" } } } }
+    products: { "gid://shopify/Product/<id>": { "active": true, "bundle": "<default bundle id>", "previews": [ids], "tests": { "<test>": { "a": "<bundle>", "b": "<bundle>" } } } }
     tests:    { "<test>": { "a": 50, "b": 50 } }   (traffic split of running tests)
     collector: "https://..."                        (optional stats URL, see README "Stats")
   A/B test: every version's bundle is rendered, CSS keeps only the visitor's one (class obab-<test>-<version> set by

@@ -508,6 +508,12 @@ def config():
         prod = out["products"].setdefault(t["productId"], {"handle": t["handle"], "bundle": t["bundles"].get("a")})
         prod.setdefault("tests", {})[t["id"]] = dict(t["bundles"])
         out["tests"][t["id"]] = {v["key"]: v["weight"] for v in t["versions"]}
+    # active: the product page shows an offer, so the theme hides its own variant picker, quantity and buy buttons.
+    # Only set when the offer can really be drawn (its bundles exist); a product with previews only keeps the theme's.
+    for prod in out["products"].values():
+        test_ok = any(all(b in out["bundles"] for b in v.values()) for v in (prod.get("tests") or {}).values())
+        if prod.get("bundle") in out["bundles"] or test_ok:
+            prod["active"] = True
     stats = shopify.setting("STATS_URL")
     if stats:
         out["collector"] = stats

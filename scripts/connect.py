@@ -61,6 +61,8 @@ def main():
         shopify.write_settings(before) if before else shopify.forget()
         sys.exit(f"Could not connect: {e}\nIs the app installed on {a.store}? (INSTALL.md, step 5)")
     print(f"Connected to {info['shop']} ({shopify.store()}). Keys saved outside the repository.")
+    if a.preview_theme:
+        print(f"Preview theme saved: {a.preview_theme} (the editor's previews open it).")
     if info["missingScopes"]:
         sys.exit("Missing app scopes: " + ", ".join(info["missingScopes"]) +
                  ". Check [access_scopes] in app/shopify.app.toml, run `shopify app deploy --path app`, then accept the update in the store admin.")
