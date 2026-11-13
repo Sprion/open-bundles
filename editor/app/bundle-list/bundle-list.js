@@ -5,6 +5,7 @@ import { money, esc } from "../bundle-editor/shared.js";
 import * as editor from "../bundle-editor/editor.js";
 import { head, testRows, wireTest, fillResults, totals, xsend, metricCells, day, DOTS, CHEV, NCOLS } from "../test-rows/test-rows.js";
 import { send } from "../bundle-editor/shared.js";
+import { confirmLive } from "../live.js";
 
 export const html = () => `
   <section class="bnd">
@@ -146,9 +147,22 @@ export async function mount(root) {
     el.querySelector(".kt__name b").addEventListener("click", () => toggle(fold.getAttribute("aria-expanded") !== "true"));
     // One bundle per product page: choosing a product replaces the bundle it had.
     el.querySelector("[data-assign]").addEventListener("change", async (e) => {
+      const handle = e.target.value, before = productsUsing(id);
+      const title = (h) => state.productList.find((p) => p.handle === h)?.title || h;
+      const name = b.title || id;
+      const replaced = handle && Object.values(state.products || {}).find((p) => p.handle === handle && p.bundle && p.bundle !== id);
+      const lines = [];
+      if (handle) lines.push(`Every visitor of "${title(handle)}" sees "${name}" right away, and checkout charges its prices.`);
+      if (replaced) lines.push(`It replaces the bundle "${state.bundles[replaced.bundle]?.title || replaced.bundle}" on that page.`);
+      for (const h of before) if (h !== handle) lines.push(`"${title(h)}" goes back to its usual buy buttons.`);
+      const ok = await confirmLive({
+        title: handle ? "Put this bundle on your store?" : "Take this bundle off your store?", lines,
+        action: handle ? "Make it live" : "Take it off",
+        preview: handle ? async () => (await send("POST", "/preview", { handle, bundle: id, on: true })).url : null,
+      });
+      if (!ok) { e.target.value = before[0] || ""; return; }
       msg("Saving…");
       try {
-        const handle = e.target.value;
         for (const h of productsUsing(id)) if (h !== handle) await send("POST", "/assign", { handle: h, bundle: "" });
         if (handle) await send("POST", "/assign", { handle, bundle: id });
         await load();

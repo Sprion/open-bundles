@@ -459,7 +459,15 @@ def preview_bundle(handle, bundle_id, on=True):
     _tidy(cfg, pid)
     _write(BUNDLES_FILE, cfg)
     sync()
-    return prod
+    return {**prod, "url": product_url(handle, f"ob={bundle_id}")}
+
+
+def product_url(handle, query=""):
+    """Storefront URL of a product page, on the preview theme when one is set in the store settings."""
+    theme = shopify.setting("SHOPIFY_PREVIEW_THEME_ID")
+    base = shopify.setting("SHOP_URL").rstrip("/") or f"https://{shopify.store()}"
+    q = "&".join(x for x in ((f"preview_theme_id={theme}" if theme else ""), query) if x)
+    return f"{base}/products/{handle}" + (f"?{q}" if q else "")
 
 
 def preview_draft(handle, bundle):

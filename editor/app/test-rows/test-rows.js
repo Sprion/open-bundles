@@ -1,6 +1,7 @@
 // One A/B test as a row: a summary line (chevron, name, target, created, totals, ON/OFF, ⋮) and, unfolded,
 // one line per version (A, B…) with its traffic split and numbers. Shared by the Landing pages and Bundles tabs.
 import { money, num, esc } from "../lib/format.js";
+import { confirmLive } from "../live.js";
 
 const dash = `<span class="muted">—</span>`;
 const v = (x, fmt) => (x == null ? dash : fmt(x));
@@ -136,7 +137,20 @@ export function wireTest(el, t, reload, onEdit) {
     el.classList.toggle("is-open", open);
     el.querySelectorAll("[data-ver]").forEach((r) => { r.hidden = !open; });
   });
-  el.querySelector("[data-toggle]")?.addEventListener("click", () => run("POST", `${id}/status`, { on: t.status !== "running" }));
+  el.querySelector("[data-toggle]")?.addEventListener("click", async () => {
+    const on = t.status !== "running", page = t.pages?.[0]?.handle || t.handle;
+    const ok = await confirmLive(on ? {
+      title: "Start this A/B test?",
+      lines: [`Visitors of "${page}" are split between ${t.versions.map((v) => v.key.toUpperCase()).join(", ")} right away, and each one is charged the version they see.`,
+              "Check every version first with its Edit > Open preview."],
+      action: "Start the test",
+    } : {
+      title: "Pause this A/B test?",
+      lines: [`Every visitor of "${page}" sees version A again right away.`],
+      action: "Pause the test",
+    });
+    if (ok) run("POST", `${id}/status`, { on });
+  });
   let timer;
   el.querySelectorAll("[data-weight]").forEach((input) => input.addEventListener("change", () => {
     clearTimeout(timer);

@@ -11,6 +11,7 @@ import { esc } from "./shared.js";
 import * as imagePicker from "./image-picker.js";
 import * as variants from "./variants.js";
 import { productOptions } from "./settings.js";
+import { liveUses, confirmLive } from "../live.js";
 
 export function html(id, b, products = [], current = "") {
   const keys = (b.tiers || []).map(() => bars.newKey());
@@ -233,6 +234,17 @@ export function wire(f, { product, options, productOf, optionsFor, onClose, onSa
   f.addEventListener("submit", async (e) => {
     e.preventDefault();
     const b = read(f);
+    const uses = await liveUses(b.id).catch(() => ({ any: false }));
+    if (uses.any) {
+      const ok = await confirmLive({
+        title: "Save changes to a live bundle?",
+        lines: [...uses.pages.map((p) => `Visitors of "${p}" see the changes right away.`),
+                ...uses.tests.map((t) => `It is a version of the running A/B test "${t}".`)],
+        action: "Save and go live",
+        preview: async () => (await send("POST", "/draft", { handle: f.elements.product.value, bundle: b })).url,
+      });
+      if (!ok) return;
+    }
     show("Saving…");
     try { await send("POST", `/${encodeURIComponent(b.id)}`, b); await onSaved(); } catch (err) { show(err.message, true); }
   });
