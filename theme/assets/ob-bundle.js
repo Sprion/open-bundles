@@ -53,7 +53,7 @@
       if (ds.ctaSize) btn.style.fontSize = `${ds.ctaSize}px`;
       if (ds.ctaWeight) btn.style.fontWeight = ds.ctaWeight;
       if (ds.ctaCase) { btn.style.textTransform = ds.ctaCase === 'upper' ? 'uppercase' : 'none'; btn.style.letterSpacing = ds.ctaCase === 'upper' ? '.02em' : '0'; }
-      if ('ctaNomark' in ds) { // flat button, text centred, no mountain mark
+      if ('ctaNomark' in ds) { // flat button, text centred, no icon
         btn.querySelectorAll(':scope > svg, :scope > img').forEach((m) => { m.style.display = 'none'; });
         btn.style.gridTemplateColumns = '1fr'; btn.style.justifyItems = 'center'; btn.style.boxShadow = 'none';
       }
