@@ -100,34 +100,44 @@ shopify theme pull --store STORE --theme TARGET_ID --path .theme-work --force --
 `.theme-work/` is ignored by git. Then:
 
 1. Copy `theme/snippets/*` into `.theme-work/snippets/` and `theme/assets/ob-bundle.js` into `.theme-work/assets/`.
-2. Find the product form: `templates/product.json` names the main section; open `sections/<that type>.liquid`.
-3. Render the block where the theme renders its buy buttons:
-
-   ```liquid
-   {% render 'ob-offer', product: product, section: section %}
-   ```
-
-4. On products that have a bundle the block brings its own variant pickers and Add to cart button, so hide the theme's
-   (variant picker, quantity, buy buttons). Compute once near the top of the section:
+2. Find where the theme draws the product form. Two common layouts (tested on Dawn and Horizon):
+   - **Section with `case block.type`** (Dawn and themes built on it): `templates/product.json` names the main section;
+     open `sections/<that type>.liquid` and find the `{%- when 'variant_picker' -%}`, `{%- when 'quantity_selector' -%}`
+     and `{%- when 'buy_buttons' -%}` branches.
+   - **Theme blocks** (Horizon and newer themes, with a `blocks/` folder): `blocks/buy-buttons.liquid` (it holds the
+     quantity and Add to cart) and `blocks/variant-picker.liquid`. There the product is `closest.product`.
+   Other themes: find the same three things (variant picker, quantity, buy buttons) in the main product section.
+3. Compute once, before those parts (in each file that needs it; `product` is `closest.product` in theme blocks):
 
    ```liquid
    {%- liquid
      assign ob_key = 'gid://shopify/Product/' | append: product.id
      assign ob_has_bundle = false
-     if shop.metafields.open_bundles.config.value.products[ob_key] != blank
+     if product != blank and shop.metafields.open_bundles.config.value.products[ob_key] != blank
        assign ob_has_bundle = true
      endif
    -%}
    ```
 
-   and wrap each of those parts in `{% unless ob_has_bundle %}...{% endunless %}`. In block-based themes they are
-   `{%- when 'variant_picker' -%}`, `{%- when 'quantity_selector' -%}`, `{%- when 'buy_buttons' -%}` branches: wrap the
-   content of each branch, and put the render in the `buy_buttons` branch outside the `unless`.
-5. Push only what changed, to the copy:
+4. Products with a bundle get the block (it brings its own variant pickers and Add to cart button) instead of the
+   theme's variant picker, quantity and buy buttons. Products without a bundle must stay exactly as they were:
+   - buy buttons: `{%- if ob_has_bundle -%}{%- render 'ob-offer', product: product, section: section -%}{%- else -%}`
+     the original buy buttons `{%- endif -%}` (in a theme block, the whole markup before `{% schema %}`);
+   - variant picker and quantity: wrap them in `{%- unless ob_has_bundle -%}...{%- endunless -%}`.
+5. Push only the files you changed, to the copy:
 
    ```bash
-   shopify theme push --store STORE --theme TARGET_ID --path .theme-work --nodelete --only snippets/ob-* --only assets/ob-bundle.js --only sections/MAIN_SECTION.liquid --no-input
+   shopify theme push --store STORE --theme TARGET_ID --path .theme-work --nodelete --only snippets/ob-* --only assets/ob-bundle.js --only CHANGED_FILE --no-input
    ```
+
+   (one `--only` per changed theme file).
+6. Check it yourself before sending anything to the user, with a browser you control (the storefront password, if any,
+   comes from the user):
+   - the product with a bundle: the block shows, the theme's own buy buttons do not, switching offers updates the
+     button, Add to cart puts the right items in the cart at the bundle price, and no new JavaScript errors appear;
+   - pages without a bundle (home, a collection, two other products, the cart): the same text on the copy as on the
+     live theme (`?preview_theme_id=LIVE_ID` against `?preview_theme_id=TARGET_ID`).
+   Fix and push again until both hold.
 
    Then `python scripts/connect.py --store STORE --preview-theme TARGET_ID` makes the editor's previews use the copy.
 
@@ -165,10 +175,10 @@ Fix whatever the user reports, push to the copy again, send the links again. Onl
 
 ```bash
 mkdir .theme-live
-shopify theme pull --store STORE --theme LIVE_ID --path .theme-live --only sections/MAIN_SECTION.liquid --force --no-input
+shopify theme pull --store STORE --theme LIVE_ID --path .theme-live --only CHANGED_FILE --force --no-input
 ```
 
-Make the same edit in `.theme-live/sections/MAIN_SECTION.liquid` (the live file may have changed since the copy was
+Make the same edit in the live files (the live file may have changed since the copy was
 made), copy the snippets and asset in, and push with `--theme LIVE_ID --allow-live` and the same `--only` list. Then
 open the live product page and check it once more. Prefer this to publishing the copy: publishing would also undo
 anything changed on the live theme in between.

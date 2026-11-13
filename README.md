@@ -68,7 +68,8 @@ Built for stores where a broken product page costs real money:
 
 - **Nothing goes live unseen.** The first install goes on a copy of your theme; the live theme changes only after you
   have checked the preview links and said yes.
-- **Small footprint.** New files only (`ob-*`), plus a few lines in the product section. Products without a bundle,
+- **Small footprint.** New files only (`ob-*`), plus a few lines where the theme draws its buy buttons (tested on Dawn
+  and Horizon). Products without a bundle,
   the home page, collections and the cart stay exactly as they were.
 - **The editor asks first.** Putting a bundle on a product page, saving a bundle that is live, or starting a test opens
   a window that says what visitors will see, with a store preview button.
