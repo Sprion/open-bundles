@@ -11,3 +11,4 @@ data/bundles.json
 data/tests.json
 data/demo-results.json
 .theme-work/
+.theme-live/

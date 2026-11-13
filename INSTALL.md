@@ -78,13 +78,33 @@ python scripts/connect.py --store STORE
 It prints the shop name, then "Bundle discount created" (or "already exists"). If it lists missing scopes, check step 3,
 redeploy, and ask the user to accept the app update in the store admin.
 
-## 7. Add the block to a copy of the theme
+## 7. Add the block to the theme
+
+Ask the user, with this explanation:
+
+*"Where do I add the bundle block?*
+*1. On a copy of your theme first (recommended): your store does not change until you say so, you check the copy with*
+*a preview link, then I put the same change on your live theme.*
+*2. Straight on your live theme: quicker. Products without a bundle look exactly the same as before; a product*
+*changes only once you give it a bundle in the editor."*
+
+Below, `TARGET_ID` is the copy (choice 1) or the live theme (choice 2).
 
 ```bash
 shopify theme list --store STORE --role live --json
+```
+
+Choice 1, make the copy (its ID is `TARGET_ID`):
+
+```bash
 shopify theme duplicate --store STORE --theme LIVE_ID --name "Bundles test" --json --force --no-input
+```
+
+Then, for both:
+
+```bash
 mkdir .theme-work
-shopify theme pull --store STORE --theme COPY_ID --path .theme-work --force --no-input
+shopify theme pull --store STORE --theme TARGET_ID --path .theme-work --force --no-input
 ```
 
 `.theme-work/` is ignored by git. Then:
@@ -113,14 +133,14 @@ shopify theme pull --store STORE --theme COPY_ID --path .theme-work --force --no
    and wrap each of those parts in `{% unless ob_has_bundle %}...{% endunless %}`. In block-based themes they are
    `{%- when 'variant_picker' -%}`, `{%- when 'quantity_selector' -%}`, `{%- when 'buy_buttons' -%}` branches: wrap the
    content of each branch, and put the render in the `buy_buttons` branch outside the `unless`.
-5. Push only what changed, to the copy:
+5. Push only what changed (add `--allow-live` for choice 2):
 
    ```bash
-   shopify theme push --store STORE --theme COPY_ID --path .theme-work --nodelete --only snippets/ob-* --only assets/ob-bundle.js --only sections/MAIN_SECTION.liquid --no-input
-   python scripts/connect.py --store STORE --preview-theme COPY_ID
+   shopify theme push --store STORE --theme TARGET_ID --path .theme-work --nodelete --only snippets/ob-* --only assets/ob-bundle.js --only sections/MAIN_SECTION.liquid --no-input
    ```
 
-   The second command makes the editor's "Open" links use the copy.
+   Choice 1 only: `python scripts/connect.py --store STORE --preview-theme TARGET_ID` makes the editor's "Open" links
+   use the copy.
 
 ## 8. First bundle
 
@@ -140,15 +160,25 @@ sample pictures must have them replaced or removed before it saves.
 
 ## 9. Check, then go live
 
-Open `https://STORE/products/HANDLE?preview_theme_id=COPY_ID`: the bundle shows, Add to cart adds the right items,
+Open `https://STORE/products/HANDLE` (choice 1: add `?preview_theme_id=TARGET_ID`): the bundle shows, Add to cart adds the right items,
 and the cart total has the bundle discount. Show the user, and fix what is off. Dev stores are password protected:
 the storefront password is in the admin (Online Store > Preferences), and only the user can give it.
 
 The editor preview (`POST /api/bundles/render/<key>` with the product handle) draws the block with the real product
 without opening the storefront, a quick check before the full one.
 
-Going live is the user's call: they publish the copy in Online Store > Themes, or ask you to run
-`shopify theme publish --store STORE --theme COPY_ID`.
+Choice 1, going live is the user's call. When they say so, push the same files to the live theme:
+
+```bash
+shopify theme pull --store STORE --theme LIVE_ID --path .theme-live --only sections/MAIN_SECTION.liquid --force --no-input
+```
+
+Make the same edit in `.theme-live/sections/MAIN_SECTION.liquid` (the live file may have changed since the copy was
+made), copy the snippets and asset in, and push with `--theme LIVE_ID --allow-live` and the same `--only` list.
+Prefer this to publishing the copy: publishing would also undo anything changed on the live theme in between.
+
+Afterwards bundles and A/B tests need no theme work: the editor saves them to the store directly, and they show on the
+live store as soon as they are saved and assigned to a product page (`?ob=<bundle id>` previews one first).
 
 ## Without an AI
 
